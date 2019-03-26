@@ -6,3 +6,5 @@ Soliton_EmptyRegion         0.0      # soliton-free region [0.0]
                                      # -> solitons only reside in [Soliton_EmptyRegion : BOX_SIZE-Soliton_EmptyRegion]
                                      # -> useful only when Soliton_RSeed >= 0
 Soliton_DensProf_Filename   SolitonDensityProfile_Lambda0.0    # filename of the input soliton density profile
+ExtPot_M                    0.0      # point source mass at the center 
+                                     # (= 0.21198930 for default Soliton_CoreRadiusAll=10 and Soliton_DensProf_Filename = "SolitonDensityProfile_OneTenthPointMass" )

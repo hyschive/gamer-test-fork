@@ -22,6 +22,7 @@ static double  *Soliton_ScaleL     = NULL;               // L/D: length/density 
                                                          //      (defined as the ratio between the core radii/peak
                                                          //      density of the target and reference soliton profiles)
 static double  *Soliton_ScaleD     = NULL;
+static double   ExtPot_M;                                // point source mass
 // =======================================================================================
 
 
@@ -117,6 +118,7 @@ void SetParameter()
    ReadPara->Add( "Soliton_CoreRadiusAll",     &Soliton_CoreRadiusAll,      NoDef_double,  NoMin_double,     NoMax_double      );
    ReadPara->Add( "Soliton_EmptyRegion",       &Soliton_EmptyRegion,        0.0,           NoMin_double,     NoMax_double      );
    ReadPara->Add( "Soliton_DensProf_Filename",  Soliton_DensProf_Filename,  Useless_str,   Useless_str,      Useless_str       );
+   ReadPara->Add( "ExtPot_M",                  &ExtPot_M,                   0.0,           0.0,              NoMax_double      ); 
 
    ReadPara->Read( FileName );
 
@@ -131,6 +133,17 @@ void SetParameter()
    if ( Soliton_CoreRadiusAll == NoDef_double )
       Aux_Error( ERROR_INFO, "Runtime parameter \"Soliton_CoreRadiusAll\" is not set !!\n" );
 
+   if ( ExtPot_M != 0.0 && !OPT__EXTERNAL_POT )
+      Aux_Error( ERROR_INFO, "OPT__EXTERNAL_POT must be enabled to add a point source mass !!\n");
+
+   if ( MPI_Rank == 0)
+   {
+      if ( ExtPot_M != 0.0 && strcmp( Soliton_DensProf_Filename, "SolitonDensityProfile_OneTenthPointMass") != 0 )
+         Aux_Message( stdout, "WARNING : A soliton solution with point mass (=0.1*SolitonTotalMass) is provided as SolitonDensityProfile_OneTenthPointMass.\n" );
+
+      if ( ExtPot_M != 0.0 && strcmp( Soliton_DensProf_Filename, "SolitonDensityProfile_OneTenthPointMass") == 0 )
+         Aux_Message( stdout, "WARNING : Be careful that  SolitonDensityProfile_OneTenthPointMass is only valid when ExtPot_M == 0.1*SolitonTotalMass.\n" );
+   }
 
 // (2) set the problem-specific derived parameters
 // (2-1) allocate memory
@@ -263,6 +276,7 @@ void SetParameter()
       Aux_Message( stdout, "  %7d  %13.6e  %13.6e  %13.6e  %13.6e  %13.6e  %13.6e\n",
                    t, Soliton_CoreRadius[t], Soliton_ScaleL[t], Soliton_ScaleD[t],
                    Soliton_Center[t][0], Soliton_Center[t][1], Soliton_Center[t][2] );
+      Aux_Message( stdout, "  point source mass                         = %13.7e\n", ExtPot_M                   );
       Aux_Message( stdout, "======================================================================================\n" );
    }
 
@@ -384,6 +398,28 @@ void BC( real fluid[], const double x, const double y, const double z, const dou
    fluid[DENS] = (real)0.0;
 
 } // FUNCTION : BC
+
+//-------------------------------------------------------------------------------------------------------
+// Function    :  Init_ExtPot
+// Description :  Set the array "ExtPot_AuxArray" used by the external potential routines
+//                "CUPOT_ExternalPot.cu / CPU_ExternalPot.cpp"
+//
+// Note        :  1. Linked to the function pointer "Init_ExternalPot_Ptr"
+//                2. Enabled by the runtime option "OPT__EXTERNAL_POT"
+//
+// Parameter   :  None
+//-------------------------------------------------------------------------------------------------------
+void Init_ExtPot()
+{
+
+// ExtPot_AuxArray has the size of EXT_POT_NAUX_MAX (default = 10)
+   ExtPot_AuxArray[0] = 0.5*amr->BoxSize[0];
+   ExtPot_AuxArray[1] = 0.5*amr->BoxSize[1];
+   ExtPot_AuxArray[2] = 0.5*amr->BoxSize[2];
+   ExtPot_AuxArray[3] = ExtPot_M*NEWTON_G;
+
+} // FUNCTION : Init_ExtPot
+
 #endif // #if ( MODEL == ELBDM  &&  defined GRAVITY )
 
 
@@ -422,7 +458,7 @@ void Init_TestProb_ELBDM_Soliton()
    Aux_Record_User_Ptr      = NULL;
    End_User_Ptr             = End_Soliton;
    Init_ExternalAcc_Ptr     = NULL;
-   Init_ExternalPot_Ptr     = NULL;
+   Init_ExternalPot_Ptr     = Init_ExtPot;
 #  endif // #if ( MODEL == ELBDM  &&  defined GRAVITY )
 
 
