@@ -36,7 +36,7 @@ COMPILE_VERBOSE := 0
 SIMU_OPTION += -DMODEL=HYDRO
 
 # enable gravity
-#SIMU_OPTION += -DGRAVITY
+SIMU_OPTION += -DGRAVITY
 
 # enable particles
 # --> must enable GRAVITY
@@ -55,7 +55,7 @@ ifeq "$(filter -DMODEL=HYDRO, $(SIMU_OPTION))" "-DMODEL=HYDRO"
 # hydrodynamic scheme: RTVD/MHM/MHM_RP/CTU
 # --> must be set when MODEL=HYDRO
 # --> MHD only supports MHM_RP and CTU
-SIMU_OPTION += -DFLU_SCHEME=CTU
+SIMU_OPTION += -DFLU_SCHEME=MHM_RP
 
 # scheme of spatial data reconstruction: PLM/PPM (piecewise-linear/piecewise-parabolic)
 # --> useless for RTVD
@@ -65,7 +65,7 @@ SIMU_OPTION += -DLR_SCHEME=PPM
 # --> pure hydro: EXACT/ROE/HLLE/HLLC(*); MHD: ROE/HLLE/HLLD(*);
 #                 (recommended solvers are highlighted by *)
 # --> useless for RTVD
-SIMU_OPTION += -DRSOLVER=ROE
+SIMU_OPTION += -DRSOLVER=HLLC
 
 # dual energy formalism: DE_ENPY/DE_EINT (evolve entropy or internal energy)
 # --> DE_EINT is not supported yet; useless for RTVD
@@ -84,13 +84,16 @@ SIMU_OPTION += -DNCOMP_PASSIVE_USER=0
 
 # equation of state: EOS_GAMMA/EOS_ISOTHERMAL/EOS_NUCLEAR/EOS_TABULAR/EOS_USER
 # --> must be set when MODEL=HYDRO; must also enable BAROTROPIC_EOS for EOS_ISOTHERMAL
-SIMU_OPTION += -DEOS=EOS_GAMMA
+SIMU_OPTION += -DEOS=EOS_NUCLEAR
 
 # whether or not the EOS set above is barotropic
 # --> mandatory for EOS_ISOTHERMAL; optional for EOS_TABULAR/EOS_USER
 #SIMU_OPTION += -DBAROTROPIC_EOS
 
-# neutrino updating scheme: LIGHTBULB/IDSA/M1
+# enable Deleptonization
+#SIMU_OPTION += -DDELEPTIONIZATION
+
+# nutrino transport scheme: LIGHTBULB/IDSA/M1
 #SIMU_OPTION += -DNEUTRINO_SCHEME=LIGHTBULB
 
 
@@ -128,15 +131,15 @@ SIMU_OPTION += -DSTORE_POT_GHOST
 
 # use unsplitting method to couple gravity to the target model (recommended)
 # --> for HYDRO only; ELBDM is not supported yet
-SIMU_OPTION += -DUNSPLIT_GRAVITY
+#SIMU_OPTION += -DUNSPLIT_GRAVITY
 
 # comoving frame for cosmological simulations
 # --> not supported for PARTICLE
 #SIMU_OPTION += -DCOMOVING
 
-# effective GR potential
+# include effective GR potential
 # --> must also set "OPT__EXT_POT=3" in Input__Parameter
-#SIMU_OPTION += -DGREP
+SIMU_OPTION += -DGREP
 endif # GRAVITY
 
 
@@ -160,7 +163,7 @@ endif # PARTICLE
 # ------------------------------------------------------------------------------------
 # maximum number of AMR levels including the root level (level id = 0 ... NLEVEL-1)
 # --> must be set in any cases
-SIMU_OPTION += -DNLEVEL=10
+SIMU_OPTION += -DNLEVEL=5
 
 # maximum number of patches on each AMR level
 # --> must be set in any cases
@@ -168,10 +171,10 @@ SIMU_OPTION += -DMAX_PATCH=1000000
 
 # GPU acceleration
 # --> must set GPU_ARCH as well
-#SIMU_OPTION += -DGPU
+SIMU_OPTION += -DGPU
 
 # GPU architecture: FERMI/KEPLER/MAXWELL/PASCAL/VOLTA/TURING
-SIMU_OPTION += -DGPU_ARCH=KEPLER
+SIMU_OPTION += -DGPU_ARCH=TURING
 
 # debug mode
 #SIMU_OPTION += -DGAMER_DEBUG
@@ -191,11 +194,11 @@ SIMU_OPTION += -DTIMING
 
 # serial mode (in which no MPI libraries are required)
 # --> must disable LOAD_BALANCE
-SIMU_OPTION += -DSERIAL
+#SIMU_OPTION += -DSERIAL
 
 # load-balance parallelization: HILBERT
 # --> must disable SERIAL
-#SIMU_OPTION += -DLOAD_BALANCE=HILBERT
+SIMU_OPTION += -DLOAD_BALANCE=HILBERT
 
 # overlap MPI communication with computation
 # --> NOT supported yet; must enable LOAD_BALANCE
@@ -208,7 +211,7 @@ SIMU_OPTION += -DOPENMP
 #SIMU_OPTION += -DLAOHU
 
 # support HDF5 format
-#SIMU_OPTION += -DSUPPORT_HDF5
+SIMU_OPTION += -DSUPPORT_HDF5
 
 # support GNU scientific library
 #SIMU_OPTION += -DSUPPORT_GSL
@@ -219,7 +222,8 @@ SIMU_OPTION += -DOPENMP
 # random number implementation: RNG_GNU_EXT/RNG_CPP11 (GNU extension drand48_r/c++11 <random>)
 # --> use RNG_GNU_EXT for compilers supporting GNU extensions (**not supported on some macOS**)
 #     use RNG_CPP11   for compilers supporting c++11 (**may need to add -std=c++11 to CXXFLAG**)
-SIMU_OPTION += -DRANDOM_NUMBER=RNG_GNU_EXT
+#SIMU_OPTION += -DRANDOM_NUMBER=RNG_GNU_EXT
+SIMU_OPTION += -DRANDOM_NUMBER=RNG_CPP11
 
 
 
@@ -254,10 +258,10 @@ SIMU_OPTION += -DRANDOM_NUMBER=RNG_GNU_EXT
 
 # gnu
 # -------------------------------------------------------------------------------
- CXX         = g++                                       # serial compiler
-#CXX         = $(MPI_PATH)/bin/mpicxx                    # MPI compiler
+# CXX         = g++                                       # serial compiler
+CXX         = $(MPI_PATH)/bin/mpicxx                     # MPI compiler
 #CXX         = CC                                        # cray wrapper script
- CXXFLAG     = -g -O3                                    # general flags
+ CXXFLAG     = -g -O3 -std=c++11                         # general flags
 #CXXFLAG     = -g -O3 -std=c++11
 #CXXFLAG     = -g -Ofast
  CXXFLAG    += -Wall -Wextra                             # warning flags
@@ -280,9 +284,9 @@ endif
 
 # CUDA
 # -------------------------------------------------------------------------------
- NVCC = $(CUDA_PATH)/bin/nvcc                            # CUDA compiler
-#NVCC = $(CUDA_PATH)/bin/nvcc -ccbin YOUR_G++            # with a specified host compiler
-#NVCC = nvcc -ccbin CC                                   # for the Cray environment
+# NVCC = $(CUDA_PATH)/bin/nvcc                            # CUDA compiler
+NVCC = $(CUDA_PATH)/bin/nvcc -ccbin /usr/bin/g++          # with a specified host compiler
+#NVCC = nvcc -ccbin CC                                    # for the Cray environment
 
 
 
@@ -292,10 +296,10 @@ endif
 #######################################################################################################
 
 # template
-CUDA_PATH    :=
-FFTW_PATH    :=
-MPI_PATH     :=
-HDF5_PATH    :=
+CUDA_PATH    := /cluster/software/cuda-10.0
+FFTW_PATH    := /cluster/software/fftw/2.1.5/gcc--8.3.0/openmpi--3.1.4
+MPI_PATH     := /cluster/software/openmpi/3.1.4/gcc--8.3.0
+HDF5_PATH    := /cluster/software/hdf5-parallel/1.8.21/gcc--8.3.0/openmpi--3.1.4
 GRACKLE_PATH :=
 GSL_PATH     :=
 LIBYT_PATH   :=
@@ -664,6 +668,7 @@ vpath %.cpp    StarFormation
 endif # STAR_FORMATION
 
 
+
 # test problem source files
 # --> just compile all .cpp and .cu files under TestProblem/*/*/
 # ------------------------------------------------------------------------------------
@@ -858,9 +863,9 @@ else ifeq "$(filter -DGPU_ARCH=VOLTA, $(SIMU_OPTION))" "-DGPU_ARCH=VOLTA"
    endif
 else ifeq "$(filter -DGPU_ARCH=TURING, $(SIMU_OPTION))" "-DGPU_ARCH=TURING"
    ifeq "$(filter -DFLOAT8, $(SIMU_OPTION))" "-DFLOAT8"
-     NVCCFLAG_FLU += --maxrregcount=224
+     NVCCFLAG_FLU += --maxrregcount=256
    else
-     NVCCFLAG_FLU += --maxrregcount=160
+     NVCCFLAG_FLU += --maxrregcount=192
    endif
 endif
 
@@ -948,6 +953,3 @@ clean :
 	@rm -f $(OBJ_PATH)/*
 	@rm -f $(EXECUTABLE)
 	@rm -f ./*.linkinfo
-
-
-
