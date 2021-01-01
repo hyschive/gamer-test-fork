@@ -258,7 +258,7 @@ void SetGridIC( real fluid[], const double x, const double y, const double z, co
    {
       real *Passive = new real [NCOMP_PASSIVE];
 
-      Passive[0] = Ye*Dens;
+      Passive[ YE - NCOMP_FLUID ] = Ye*Dens;
 
       Eint = EoS_DensPres2Eint_CPUPtr( Dens, Pres, Passive, EoS_AuxArray_Flt,
                                        EoS_AuxArray_Int, h_EoS_Table );
