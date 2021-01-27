@@ -103,6 +103,8 @@ void Poi_UserWorkBeforePoisson_GREP( const double Time, const int lv )
    }
 
    CUAPI_SendExtPotTable2GPU(GREP_Table);
+
+   delete [] GREP_Table;
 #  endif
 
 } // FUNCTION : Poi_UserWorkBeforePoisson_GREP
