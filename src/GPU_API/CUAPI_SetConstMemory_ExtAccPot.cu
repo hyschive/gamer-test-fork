@@ -32,7 +32,7 @@ void CUAPI_SetConstMemory_ExtAccPot()
       CUDA_CHECK_ERROR(  cudaMemcpyToSymbol( c_ExtPot_AuxArray_Flt, ExtPot_AuxArray_Flt, EXT_POT_NAUX_MAX*sizeof(double) )  );
       CUDA_CHECK_ERROR(  cudaMemcpyToSymbol( c_ExtPot_AuxArray_Int, ExtPot_AuxArray_Int, EXT_POT_NAUX_MAX*sizeof(int)    )  );
 
-      if ( OPT__EXT_POT == EXT_POT_GREP )    CUAPI_SetConstMemory_ExtPot_GREP();
+//      if ( OPT__EXT_POT == EXT_POT_GREP )    CUAPI_SetConstMemory_ExtPot_GREP();
    }
 
 } // FUNCTION : CUAPI_SetConstMemory_ExtAccPot

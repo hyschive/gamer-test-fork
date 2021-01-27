@@ -92,6 +92,17 @@ void Poi_UserWorkBeforePoisson_GREP( const double Time, const int lv )
 // update the auxiliary GPU arrays
 #  ifdef GPU
    CUAPI_SetConstMemory_ExtAccPot();
+
+// prepare the data to be passed to GPU using CUAPI_SendExtPotTable2GPU()
+   real *GREP_Table = new real[2*EXT_POT_GREP_NAUX_MAX];
+
+   for (int b=0; b<h_GREP_Lv_NBin_New; b++)
+   {
+      GREP_Table[b]                         = (real) h_GREP_Lv_Data_New  [b];
+      GREP_Table[b + EXT_POT_GREP_NAUX_MAX] = (real) h_GREP_Lv_Radius_New[b];
+   }
+
+   CUAPI_SendExtPotTable2GPU(GREP_Table);
 #  endif
 
 } // FUNCTION : Poi_UserWorkBeforePoisson_GREP

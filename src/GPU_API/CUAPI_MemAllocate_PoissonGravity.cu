@@ -96,7 +96,7 @@ void CUAPI_MemAllocate_PoissonGravity( const int Pot_NPG )
 
    CUDA_CHECK_ERROR(  cudaMalloc( (void**) &d_Pot_Array_T,      Pot_MemSize_T     )  );
 
-   if ( OPT__EXT_POT == EXT_POT_TABLE )
+   if ( OPT__EXT_POT == EXT_POT_GREP  ||  OPT__EXT_POT == EXT_POT_TABLE )
    CUDA_CHECK_ERROR(  cudaMalloc( (void**) &d_ExtPotTable,      ExtPot_MemSize    )  );
 
 
