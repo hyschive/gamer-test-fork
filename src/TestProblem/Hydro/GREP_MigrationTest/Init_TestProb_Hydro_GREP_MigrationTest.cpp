@@ -17,6 +17,7 @@ static char    NeutronStar_ICFile[MAX_STRING];  // Filename of initial condition
 // ===============================================================================================
 
 
+static void LoadICTable();
 static void Record_CentralDens();
 
 

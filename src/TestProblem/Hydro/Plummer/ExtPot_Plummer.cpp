@@ -67,7 +67,7 @@ void SetExtPotAuxArray_Plummer( double AuxArray_Flt[], int AuxArray_Int[] )
 //                                        EXT_POT_USAGE_SUB     : subtract external potential for preparing self-gravity potential on Lv-1
 //                                        EXT_POT_USAGE_SUB_TINT: like SUB but for temporal interpolation
 //                                    --> This parameter is useless in most cases
-//                PotTable          : 3D potential table used by EXT_POT_TABLE
+//                PotTable          : 3D potential table used by EXT_POT_TABLE and EXT_POT_GREP
 //
 // Return      :  External potential at (x,y,z,Time)
 //-----------------------------------------------------------------------------------------

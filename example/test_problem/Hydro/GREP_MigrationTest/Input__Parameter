@@ -159,6 +159,7 @@ OPT__SELF_GRAVITY             1           # add self-gravity [1]
 OPT__EXT_ACC                  0           # add external acceleration (0=off, 1=function, 2=table) [0] ##HYDRO ONLY##
 OPT__EXT_POT                  3           # add external potential    (0=off, 1=function, 2=table, 3=GREP) [0]
                                           # --> for 3 (GREP), one must also enable GREP in the Makefile
+                                          #                   this option will overwrite the EXT_POT_TABLE_NPOINT_[XYZ]
                                           # --> for table/GREP, edit the corresponding parameters below too
 
 # tabular external potential
@@ -174,16 +175,16 @@ EXT_POT_TABLE_FLOAT8         -1           # ...                     : double pre
                                           # --> not supported yet; use -1 for now
 
 # GREP
-GREP_CENTER_METHOD            1              # center of radial profile                                     [1]
-                                             # (1=box center)
-GREP_MAXITER                  1000           # number of iterations for constructing mass_TOV and Gamma_TOV [1000]
-GREP_LOGBIN                   1              # log/linear bins                                              [true]
-                                             # (true=logarithmic, false=linear)
-GREP_LOGBINRATIO              1.0025         # ratio of adjacent log bins                                   [1.25]
-GREP_MAXRADIUS               -1.0            # maximum radius in the radial profile                         [-1.0]
-                                             # (<=0=distance of the farthest vertex to the center)
-GREP_MINBINSIZE              -1.0            # minimum bin size                                             [-1.0]
-                                             # (<=0=use amr->dh[MAX_LEVEL])
+GREP_CENTER_METHOD            1           # center of radial profile                                     [1]
+                                          # (1=box center)
+GREP_MAXITER                  1000        # number of iterations for constructing mass_TOV and Gamma_TOV [1000]
+GREP_LOGBIN                   1           # log/linear bins                                              [true]
+                                          # (true=logarithmic, false=linear)
+GREP_LOGBINRATIO              1.0025      # ratio of adjacent log bins                                   [1.25]
+GREP_MAXRADIUS               -1.0         # maximum radius in the radial profile                         [-1.0]
+                                          # (<=0=distance of the farthest vertex to the center)
+GREP_MINBINSIZE              -1.0         # minimum bin size                                             [-1.0]
+                                          # (<=0=use amr->dh[MAX_LEVEL])
 
 
 # initialization

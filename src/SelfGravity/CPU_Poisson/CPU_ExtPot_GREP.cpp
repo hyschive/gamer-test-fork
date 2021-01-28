@@ -116,7 +116,7 @@ void Init_GREP()
 // Function    :  SetExtPotAuxArray_GREP
 // Description :  Set the auxiliary arrays ExtPot_AuxArray_Flt/Int[] used by ExtPot_GREP()
 //
-// Note        :  1. Invoked by Init_ExtPot_GREP()
+// Note        :  1. Invoked by Init_ExtPot_GREP() and Poi_UserWorkBeforePoisson_GREP()
 //                2. AuxArray_Flt/Int[] have the size of EXT_POT_NAUX_MAX defined in Macro.h (default = 20)
 //                3. Add "#ifndef __CUDACC__" since this routine is only useful on CPU
 //
@@ -166,7 +166,7 @@ void SetExtPotAuxArray_GREP( double AuxArray_Flt[], int AuxArray_Int[] )
 //                                        EXT_POT_USAGE_SUB     : subtract external potential for preparing self-gravity potential on Lv-1
 //                                        EXT_POT_USAGE_SUB_TINT: like SUB but for temporal interpolation
 //                                    --> This parameter is useless in most cases
-//                PotTable          : 3D potential table used by EXT_POT_TABLE
+//                PotTable          : 3D potential table used by EXT_POT_TABLE and EXT_POT_GREP
 //
 // Return      :  External potential at (x,y,z,Time)
 //-----------------------------------------------------------------------------------------

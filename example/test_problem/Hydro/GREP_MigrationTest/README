@@ -6,7 +6,7 @@ Disable:
 Default setup:
 ========================================
 1. Enable external potential
-   --> OPT__EXT_POT = 1
+   --> OPT__EXT_POT = 3
 2. Maximum refinement level (MAX_LEVEL) = 3 or modify the Input_Flag_Rho
 
 Note:
@@ -20,7 +20,7 @@ Note:
 
       Init_ExtPot_Ptr               = Init_ExtPot_GREP;
       Poi_UserWorkBeforePoisson_Ptr = Poi_UserWorkBeforePoisson_GREP;
-      End_ExtPot_Ptr                = End_GREP;
+      End_ExtPot_Ptr                = End_ExtPot_GREP;
 
 3. If `GAMER_DEBUG` compilation flag is enabled, additional information will be output
    to standard output for debugging the constructed GREP
