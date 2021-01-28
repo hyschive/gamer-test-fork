@@ -51,6 +51,8 @@ extern int     h_GREP_FaLv_NBin_Old;
 //                before invoking the Poisson solver
 //
 // Note        :  1. Invoked by Gra_AdvanceDt() using the function pointer "Poi_UserWorkBeforePoisson_Ptr"
+//                2. The updated GREP profile will be sent to GPU by invoking CUAPI_SendExtPotGREP2GPU()
+//                   using the interface for EXT_POT_TABLE
 //
 // Parameter   :  Time : Target physical time
 //                lv   : Target refinement level

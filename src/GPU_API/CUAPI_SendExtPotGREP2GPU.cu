@@ -20,6 +20,7 @@ extern void CUAPI_SendExtPotTable2GPU( const real *h_Table );
 //
 // Note        :  1. Invoked by Poi_UserWorkBeforePoisson_GREP()
 //                2. EXT_POT_GREP_NAUX_MAX is defined in Macro.h (default = 4000)
+//                3. d_ExtPotTable[] and h_ExtPotTable[] are shared by both EXT_POT_TABLE and EXT_POT_GREP
 //-------------------------------------------------------------------------------------------------------
 void CUAPI_SendExtPotGREP2GPU()
 {
