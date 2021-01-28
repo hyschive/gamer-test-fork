@@ -342,7 +342,7 @@ void Init_ExtPot_GREP()
 {
 
 // Overwrite the EXT_POT_TABLE_NPOINT to use the d_ExtPotTable[] and h_ExtPotTable[]
-// to pass the GREP profile to GPU global memory
+// for passing the GREP profile to GPU global memory
    EXT_POT_TABLE_NPOINT[0] = EXT_POT_GREP_NAUX_MAX;
    EXT_POT_TABLE_NPOINT[1] = 2;
    EXT_POT_TABLE_NPOINT[2] = 1;
