@@ -139,7 +139,7 @@ void SetExtPotAuxArray_GREP( double AuxArray_Flt[], int AuxArray_Int[] )
    AuxArray_Flt[3] = GREPSgTime[ FaLv ][     Sg_FaLv ];  // new physical time of GREP on father level
    AuxArray_Flt[4] = GREPSgTime[ FaLv ][ 1 - Sg_FaLv ];  // old physical time of GREP on father level
 
-   AuxArray_Int[0] = Phi_eff[Lv][Sg_Lv]->NBin;
+   AuxArray_Int[0] = Phi_eff[Lv][Sg_Lv]->NBin;           // number of bin at new physical time on current level
 
 } // FUNCTION : SetExtPotAuxArray_GREP
 #endif // #ifndef __CUDACC__
@@ -178,7 +178,10 @@ static real ExtPot_GREP( const double x, const double y, const double z, const d
 
    int     NBin;
    double  pot;
-#ifndef __CUDACC__
+#ifdef __CUDACC__
+   const real *effpot;
+   const real *radius;
+#else
    double *effpot;
    double *radius;
 #endif
@@ -191,18 +194,12 @@ static real ExtPot_GREP( const double x, const double y, const double z, const d
 
 // use Usage to determine which Data and Radius profiles, and NBin are used
 #ifdef __CUDACC__
-/*
    if ( Usage == EXT_POT_USAGE_ADD )
    {
-      effpot = c_GREP_Lv_Data_New;
-      radius = c_GREP_Lv_Radius_New;
-      NBin   = c_GREP_Lv_NBin_New;
+      effpot = PotTable;
+      radius = PotTable + EXT_POT_GREP_NAUX_MAX;
+      NBin   = UserArray_Int[0];
    }
-*/
-   const real *effpot =  PotTable;
-   const real *radius = &PotTable[EXT_POT_GREP_NAUX_MAX];
-               NBin   = UserArray_Int[0];
-
 #else // #ifdef __CUDACC__
    switch ( Usage )
    {
@@ -344,14 +341,14 @@ void SetGPUExtPot_GREP( ExtPot_t & );
 void Init_ExtPot_GREP()
 {
 
-// set the function pointer for the built-in GREP
-   Poi_UserWorkBeforePoisson_Ptr = Poi_UserWorkBeforePoisson_GREP;
-
-// Use d_ExtPotTable to pass the GREP profile to GPU global memory
-// Here we overwrite the EXT_POT_TABLE_NPOINT variable
+// Overwrite the EXT_POT_TABLE_NPOINT to use the d_ExtPotTable[] and h_ExtPotTable[]
+// to pass the GREP profile to GPU global memory
    EXT_POT_TABLE_NPOINT[0] = EXT_POT_GREP_NAUX_MAX;
    EXT_POT_TABLE_NPOINT[1] = 2;
    EXT_POT_TABLE_NPOINT[2] = 1;
+
+// set the function pointer for the built-in GREP
+   Poi_UserWorkBeforePoisson_Ptr = Poi_UserWorkBeforePoisson_GREP;
 
    Init_GREP();
    SetExtPotAuxArray_GREP( ExtPot_AuxArray_Flt, ExtPot_AuxArray_Int );

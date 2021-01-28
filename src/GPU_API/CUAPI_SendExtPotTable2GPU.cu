@@ -14,7 +14,7 @@ extern real *d_ExtPotTable;
 // Function    :  CUAPI_SendExtPotTable2GPU
 // Description :  Send the external potential table to GPU
 //
-// Note        :  1. Invoked by Init_LoadExtPotTable()
+// Note        :  1. Invoked by Init_LoadExtPotTable() and CUAPI_SendExtPotGREP2GPU()
 //
 // Parameter   :  h_Table : Host array storing the input table
 //

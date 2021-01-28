@@ -126,7 +126,7 @@ void CUAPI_MemAllocate_PoissonGravity( const int Pot_NPG )
       CUDA_CHECK_ERROR(  cudaMallocHost( (void**) &h_Pot_Array_T     [t], Pot_MemSize_T     )  );
    } // for (int t=0; t<2; t++)
 
-   if ( OPT__EXT_POT == EXT_POT_TABLE )
+   if ( OPT__EXT_POT == EXT_POT_GREP  ||  OPT__EXT_POT == EXT_POT_TABLE )
       CUDA_CHECK_ERROR(  cudaMallocHost( (void**) &h_ExtPotTable,         ExtPot_MemSize    )  );
 
 } // FUNCTION : CUAPI_MemAllocate_PoissonGravity

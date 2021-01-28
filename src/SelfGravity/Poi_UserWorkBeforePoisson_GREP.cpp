@@ -9,6 +9,7 @@ static void Combine_GREP_Profile( Profile_t *Prof[][2], const int lv, const int 
 extern void SetExtPotAuxArray_GREP( double AuxArray_Flt[], int AuxArray_Int[] );
 extern void SetTempIntPara( const int lv, const int Sg_Current, const double PrepTime, const double Time0, const double Time1,
                             bool &IntTime, int &Sg, int &Sg_IntT, real &Weighting, real &Weighting_IntT );
+extern void CUAPI_SendExtPotGREP2GPU();
 
 
 Profile_t *DensAve [NLEVEL+1][2];
@@ -92,19 +93,7 @@ void Poi_UserWorkBeforePoisson_GREP( const double Time, const int lv )
 // update the auxiliary GPU arrays
 #  ifdef GPU
    CUAPI_SetConstMemory_ExtAccPot();
-
-// prepare the data to be passed to GPU using CUAPI_SendExtPotTable2GPU()
-   real *GREP_Table = new real[2*EXT_POT_GREP_NAUX_MAX];
-
-   for (int b=0; b<h_GREP_Lv_NBin_New; b++)
-   {
-      GREP_Table[b]                         = (real) h_GREP_Lv_Data_New  [b];
-      GREP_Table[b + EXT_POT_GREP_NAUX_MAX] = (real) h_GREP_Lv_Radius_New[b];
-   }
-
-   CUAPI_SendExtPotTable2GPU(GREP_Table);
-
-   delete [] GREP_Table;
+   CUAPI_SendExtPotGREP2GPU();
 #  endif
 
 } // FUNCTION : Poi_UserWorkBeforePoisson_GREP
