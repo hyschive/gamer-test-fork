@@ -4,7 +4,6 @@
 #if ( defined GPU  &&  defined GRAVITY )
 
 
-extern real   *h_ExtPotTable;
 extern double *h_GREP_Lv_Data_New;
 extern double *h_GREP_Lv_Radius_New;
 extern int     h_GREP_Lv_NBin_New;

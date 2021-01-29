@@ -65,7 +65,7 @@ void CUAPI_MemAllocate_PoissonGravity( const int Pot_NPG )
 #  ifdef MHD
    TotalSize += Emag_MemSize_G;
 #  endif
-   if ( OPT__EXT_POT == EXT_POT_TABLE )
+   if ( OPT__EXT_POT == EXT_POT_GREP  ||  OPT__EXT_POT == EXT_POT_TABLE )
    TotalSize += ExtPot_MemSize;
 
    if ( MPI_Rank == 0 )

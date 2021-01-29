@@ -341,12 +341,6 @@ void SetGPUExtPot_GREP( ExtPot_t & );
 void Init_ExtPot_GREP()
 {
 
-// Overwrite the EXT_POT_TABLE_NPOINT to use the d_ExtPotTable[] and h_ExtPotTable[]
-// for passing the GREP profile to GPU global memory
-   EXT_POT_TABLE_NPOINT[0] = EXT_POT_GREP_NAUX_MAX;
-   EXT_POT_TABLE_NPOINT[1] = 2;
-   EXT_POT_TABLE_NPOINT[2] = 1;
-
 // set the function pointer for the built-in GREP
    Poi_UserWorkBeforePoisson_Ptr = Poi_UserWorkBeforePoisson_GREP;
 
@@ -355,6 +349,12 @@ void Init_ExtPot_GREP()
    SetCPUExtPot_GREP( CPUExtPot_Ptr );
 #  ifdef GPU
    SetGPUExtPot_GREP( GPUExtPot_Ptr );
+
+// Overwrite the EXT_POT_TABLE_NPOINT to use the d_ExtPotTable[] and h_ExtPotTable[]
+// for passing the GREP profile to GPU global memory
+   EXT_POT_TABLE_NPOINT[0] = EXT_POT_GREP_NAUX_MAX;
+   EXT_POT_TABLE_NPOINT[1] = 2;
+   EXT_POT_TABLE_NPOINT[2] = 1;
 #  endif
 
 } // FUNCTION : Init_ExtPot_GREP
