@@ -361,6 +361,8 @@ void Init_ResetParameter()
          case ( PAR_INTERP_TSC ):   GFUNC_COEFF0 = 4.8;   break;
          default: Aux_Error( ERROR_INFO, "unsupported particle interpolation scheme !!\n" );
       }
+#     elif ( MODEL == ELBDM )
+      GFUNC_COEFF0 = 3.8;
 #     else
       GFUNC_COEFF0 = 0.0;
 #     endif
