@@ -191,8 +191,8 @@ void SetGridIC( real fluid[], const double x, const double y, const double z, co
    Momz = Dens*Velr*z0/r;
 
    Eint = EoS_DensPres2Eint_CPUPtr( Dens, Pres, NULL, EoS_AuxArray_Flt,
-                                    EoS_AuxArray_Int, h_EoS_Table );    // assuming EoS requires no passive scalars
-   Etot = Hydro_ConEint2Etot( Dens, Momx, Momy, Momz, Eint, 0.0 );      // do NOT include magnetic energy here
+                                    EoS_AuxArray_Int, h_EoS_Table, NULL ); // assuming EoS requires no passive scalars
+   Etot = Hydro_ConEint2Etot( Dens, Momx, Momy, Momz, Eint, 0.0 );         // do NOT include magnetic energy here
 
 
    fluid[DENS] = Dens;

@@ -280,6 +280,9 @@ void SetParameter()
 
 #  ifdef MHD
    if (  (int)Riemann_Prob != RJ2A  &&  (int)Riemann_Prob != TORRILHON  &&  (int)Riemann_Prob != BRIO_WU  )
+#  if ( EOS == EOS_NUCLEAR )
+   if (  (int)Riemann_Prob != NUCLEAR1  &&  (int)Riemann_Prob != NUCLEAR2  )
+#  endif
       Aux_Message( stderr, "WARNING : B field is zero in the %s Riemann problem (Riemann_Prob = %d) !!\n",
                    Riemann_Name, Riemann_Prob );
 #  endif
@@ -419,7 +422,7 @@ void SetGridIC( real fluid[], const double x, const double y, const double z, co
 
 // compute and store the total gas energy
    Eint = EoS_DensPres2Eint_CPUPtr( fluid[DENS], Pres, fluid+NCOMP_FLUID,
-                                    EoS_AuxArray_Flt, EoS_AuxArray_Int, h_EoS_Table );
+                                    EoS_AuxArray_Flt, EoS_AuxArray_Int, h_EoS_Table, NULL );
 
 // do NOT include magnetic energy here
    fluid[ENGY] = Hydro_ConEint2Etot( fluid[DENS], fluid[MOMX], fluid[MOMY], fluid[MOMZ], Eint, 0.0 );

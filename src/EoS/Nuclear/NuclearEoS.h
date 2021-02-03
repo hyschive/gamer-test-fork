@@ -17,6 +17,8 @@
 #define NUC_AUX_VSQR2CGS      3     // AuxArray_Flt: convert velocity^2 to cgs
 #define NUC_AUX_PRES2CODE     4     // AuxArray_Flt: convert pressure   to code unit
 #define NUC_AUX_VSQR2CODE     5     // AuxArray_Flt: convert velocity^2 to code unit
+#define NUC_AUX_KELVIN2MEV    6     // AuxArray_Flt: convert kelvin     to MeV
+#define NUC_AUX_MEV2KELVIN    7     // AuxArray_Flt: convert MeV        to kelvin
 
 #define NUC_AUX_NRHO          0     // AuxArray_Int: nrho
 #define NUC_AUX_NEPS          1     // AuxArray_Int: neps
