@@ -228,6 +228,9 @@ void Init_Load_Parameter()
 #  else
    ReadPara->Add( "ISO_TEMP",                   &ISO_TEMP,                       __DBL_MAX__,      NoMin_double,  NoMax_double   );
 #  endif
+#  if ( EOS == EOS_NUCLEAR )
+   ReadPara->Add( "NUC_TABLE",                  NUC_TABLE,                        Useless_str,     Useless_str,   Useless_str    );
+#  endif
    ReadPara->Add( "MINMOD_COEFF",               &MINMOD_COEFF,                    1.5,             1.0,           2.0            );
    ReadPara->Add( "OPT__LR_LIMITER",            &OPT__LR_LIMITER,                 VL_GMINMOD,      0,             5              );
    ReadPara->Add( "OPT__1ST_FLUX_CORR",         &OPT__1ST_FLUX_CORR,             -1,               NoMin_int,     2              );
@@ -304,7 +307,7 @@ void Init_Load_Parameter()
    ReadPara->Add( "OPT__GRA_P5_GRADIENT",       &OPT__GRA_P5_GRADIENT,            false,           Useless_bool,  Useless_bool   );
    ReadPara->Add( "OPT__SELF_GRAVITY",          &OPT__SELF_GRAVITY,               true,            Useless_bool,  Useless_bool   );
    ReadPara->Add( "OPT__EXT_ACC",               &OPT__EXT_ACC,                    0,               0,             1              );
-   ReadPara->Add( "OPT__EXT_POT",               &OPT__EXT_POT,                    0,               0,             2              );
+   ReadPara->Add( "OPT__EXT_POT",               &OPT__EXT_POT,                    0,               0,             3              );
 // do not check the parameters of external potential table here --> do it in Init_LoadExtPotTable()
    ReadPara->Add( "EXT_POT_TABLE_NAME",          EXT_POT_TABLE_NAME,              Useless_str,     Useless_str,   Useless_str    );
    ReadPara->Add( "EXT_POT_TABLE_NPOINT_X",     &EXT_POT_TABLE_NPOINT[0],        -1,               NoMin_int,     NoMax_int      );
@@ -317,6 +320,12 @@ void Init_Load_Parameter()
 // fix EXT_POT_TABLE_FLOAT8 to -1 for now since this option is not supported yet
    ReadPara->Add( "EXT_POT_TABLE_FLOAT8",       &EXT_POT_TABLE_FLOAT8,           -1,              -1,            -1              );
    ReadPara->Add( "OPT__GRAVITY_EXTRA_MASS",    &OPT__GRAVITY_EXTRA_MASS,         false,           Useless_bool,  Useless_bool   );
+   ReadPara->Add( "GREP_CENTER_METHOD",        &GREP_CENTER_METHOD,               1,               1,              1             );
+   ReadPara->Add( "GREP_MAXITER",              &GREP_MAXITER,                     1000,            100,            NoMax_int     );
+   ReadPara->Add( "GREP_LOGBIN",               &GREP_LOGBIN,                      true,            Useless_bool,   Useless_bool  );
+   ReadPara->Add( "GREP_LOGBINRATIO",          &GREP_LOGBINRATIO,                 1.25,            1.0,            NoMax_double  );
+   ReadPara->Add( "GREP_MAXRADIUS",            &GREP_MAXRADIUS,                  -1.0,             NoMin_double,   NoMax_double  );
+   ReadPara->Add( "GREP_MINBINSIZE",           &GREP_MINBINSIZE,                 -1.0,             NoMin_double,   NoMax_double  );
 #  endif // #ifdef GRAVITY
 
 
@@ -393,6 +402,7 @@ void Init_Load_Parameter()
 #  if ( MODEL == HYDRO )
    ReadPara->Add( "OPT__OUTPUT_PRES",           &OPT__OUTPUT_PRES,                false,           Useless_bool,  Useless_bool   );
    ReadPara->Add( "OPT__OUTPUT_TEMP",           &OPT__OUTPUT_TEMP,                false,           Useless_bool,  Useless_bool   );
+   ReadPara->Add( "OPT__OUTPUT_ENTR",           &OPT__OUTPUT_ENTR,                false,           Useless_bool,  Useless_bool   );
    ReadPara->Add( "OPT__OUTPUT_CS",             &OPT__OUTPUT_CS,                  false,           Useless_bool,  Useless_bool   );
    ReadPara->Add( "OPT__OUTPUT_DIVVEL",         &OPT__OUTPUT_DIVVEL,              false,           Useless_bool,  Useless_bool   );
    ReadPara->Add( "OPT__OUTPUT_MACH",           &OPT__OUTPUT_MACH,                false,           Useless_bool,  Useless_bool   );

@@ -19,6 +19,10 @@ const Riemann_t
   ,BRIO_WU        = 8
 #endif
   ,NOH            = 9
+#if ( EOS == EOS_NUCLEAR )
+  ,NUCLEAR1       = 10
+  ,NUCLEAR2       = 11
+#endif
   ;
 
 static Riemann_t Riemann_Prob;         // target Riemann problem
@@ -45,6 +49,10 @@ static double    Riemann_MagL_T1;      // left-state transverse B field 1
 static double    Riemann_MagL_T2;      // left-state transverse B field 2
 static double    Riemann_MagR_T1;      // right-state transverse B field 1
 static double    Riemann_MagR_T2;      // right-state transverse B field 2
+#endif
+#if ( EOS == EOS_NUCLEAR )
+static double Riemann_YeL;             // left-state  electron fraction
+static double Riemann_YeR;             // right-state electron fraction
 #endif
 // =======================================================================================
 
@@ -122,7 +130,7 @@ void SetParameter()
 // ********************************************************************************************************************************
 // ReadPara->Add( "KEY_IN_THE_FILE",   &VARIABLE,              DEFAULT,       MIN,              MAX               );
 // ********************************************************************************************************************************
-   ReadPara->Add( "Riemann_Prob",      &Riemann_Prob,          -1,            0,                9                 );
+   ReadPara->Add( "Riemann_Prob",      &Riemann_Prob,          -1,            0,                11                );
    ReadPara->Add( "Riemann_LR",        &Riemann_LR,             1,            NoMin_int,        NoMax_int         );
    ReadPara->Add( "Riemann_XYZ",       &Riemann_XYZ,            0,            0,                2                 );
    ReadPara->Add( "Riemann_Pos",       &Riemann_Pos,            NoDef_double, NoMin_double,     NoMax_double      );
@@ -133,6 +141,10 @@ void SetParameter()
    delete ReadPara;
 
 // (1-2) set the default values
+#  ifdef MHD
+   const double Gauss2CodeB = Const_Gauss/UNIT_B;
+#  endif
+
    if ( Riemann_Pos   == NoDef_double )   Riemann_Pos   = amr->BoxCenter[Riemann_XYZ];
    if ( Riemann_Width == NoDef_double )   Riemann_Width = 1.0e-10/UNIT_L;  // mimic a step function
 
@@ -232,6 +244,34 @@ void SetParameter()
                             sprintf( Riemann_Name, "Noh's strong shock" );
                             break;
 
+#     if ( EOS == EOS_NUCLEAR )
+      case NUCLEAR1       : Riemann_RhoL = 4.0e14/UNIT_D;  Riemann_VelL = 0.0/UNIT_V;  Riemann_PreL = 2.504797e+34/UNIT_P;  Riemann_VelL_T1 = 0.0/UNIT_V;  Riemann_VelL_T2 = 0.0/UNIT_V;
+                            Riemann_RhoR = 1.0e8 /UNIT_D;  Riemann_VelR = 0.0/UNIT_V;  Riemann_PreR = 5.838680e+27/UNIT_P;  Riemann_VelR_T1 = 0.0/UNIT_V;  Riemann_VelR_T2 = 0.0/UNIT_V;
+                            Riemann_YeL  = 0.15;
+                            Riemann_YeR  = 0.45;
+                            Riemann_EndT = 1.0e-4/UNIT_T;
+#                           ifdef MHD
+                            Riemann_MagL_T1 = +5.0e14*Gauss2CodeB;  Riemann_MagL_T2 = 0.0*Gauss2CodeB;
+                            Riemann_MagR_T1 = -5.0e14*Gauss2CodeB;  Riemann_MagR_T2 = 0.0*Gauss2CodeB;
+                            Riemann_Mag     =  1.0e15*Gauss2CodeB;
+#                           endif
+                            sprintf( Riemann_Name, "nuclear EoS case 1" );
+                            break;
+
+      case NUCLEAR2       : Riemann_RhoL = 5.0e9/UNIT_D;  Riemann_VelL = 0.0/UNIT_V;  Riemann_PreL = 6.448892e+28/UNIT_P;  Riemann_VelL_T1 = 0.0/UNIT_V;  Riemann_VelL_T2 = 0.0/UNIT_V;
+                            Riemann_RhoR = 7.0e7/UNIT_D;  Riemann_VelR = 0.0/UNIT_V;  Riemann_PreR = 2.294131e+25/UNIT_P;  Riemann_VelR_T1 = 0.0/UNIT_V;  Riemann_VelR_T2 = 0.0/UNIT_V;
+                            Riemann_YeL  = 0.25;
+                            Riemann_YeR  = 0.45;
+                            Riemann_EndT = 5.0e-4/UNIT_T;
+#                           ifdef MHD
+                            Riemann_MagL_T1 = +1.0e15*Gauss2CodeB;  Riemann_MagL_T2 = 0.0*Gauss2CodeB;
+                            Riemann_MagR_T1 = -1.0e15*Gauss2CodeB;  Riemann_MagR_T2 = 0.0*Gauss2CodeB;
+                            Riemann_Mag     =  7.5e14*Gauss2CodeB;
+#                           endif
+                            sprintf( Riemann_Name, "nuclear EoS case 2" );
+                            break;
+#     endif
+
       default : Aux_Error( ERROR_INFO, "unsupported Riemann problem (%d) !!\n", Riemann_Prob );
    } // switch ( Riemann_Prob )
 
@@ -240,6 +280,9 @@ void SetParameter()
 
 #  ifdef MHD
    if (  (int)Riemann_Prob != RJ2A  &&  (int)Riemann_Prob != TORRILHON  &&  (int)Riemann_Prob != BRIO_WU  )
+#  if ( EOS == EOS_NUCLEAR )
+   if (  (int)Riemann_Prob != NUCLEAR1  &&  (int)Riemann_Prob != NUCLEAR2  )
+#  endif
       Aux_Message( stderr, "WARNING : B field is zero in the %s Riemann problem (Riemann_Prob = %d) !!\n",
                    Riemann_Name, Riemann_Prob );
 #  endif
@@ -356,12 +399,19 @@ void SetGridIC( real fluid[], const double x, const double y, const double z, co
    const double aVT2 = 0.5*( Riemann_VelR_T2 + Riemann_VelL_T2 );
    const double dPre = 0.5*( Riemann_PreR    - Riemann_PreL    );
    const double aPre = 0.5*( Riemann_PreR    + Riemann_PreL    );
+#  if ( EOS == EOS_NUCLEAR )
+   const double dYe  = 0.5*( Riemann_YeR     - Riemann_YeL     );
+   const double aYe  = 0.5*( Riemann_YeR     + Riemann_YeL     );
+#  endif
 
    fluid[ DENS      ] =   aRho + dRho*Tanh;
    fluid[ MomIdx[0] ] = ( aVel + dVel*Tanh )*fluid[DENS];
    fluid[ MomIdx[1] ] = ( aVT1 + dVT1*Tanh )*fluid[DENS];
    fluid[ MomIdx[2] ] = ( aVT2 + dVT2*Tanh )*fluid[DENS];
    Pres               =   aPre + dPre*Tanh;
+#  if ( EOS == EOS_NUCLEAR )
+   fluid[ YE        ] = ( aYe  + dYe *Tanh )*fluid[DENS];
+#  endif
 
    if ( Riemann_LR < 0 )
    {

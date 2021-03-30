@@ -3,6 +3,9 @@
 #ifdef GRAVITY
 
 
+// prototypes of built-in ExtPot
+void End_ExtPot_GREP();
+
 // these function pointers can be set by a test problem initializer
 void (*End_ExtAcc_Ptr)() = NULL;
 void (*End_ExtPot_Ptr)() = NULL;
@@ -28,10 +31,19 @@ void End_ExtAccPot()
 
 
 // external acceleration
-   if ( OPT__EXT_ACC  &&  End_ExtAcc_Ptr != NULL )    End_ExtAcc_Ptr();
+   if ( OPT__EXT_ACC )
+   {
+      if ( End_ExtAcc_Ptr != NULL )    End_ExtAcc_Ptr();
+   }
 
 // external potential
-   if ( OPT__EXT_POT  &&  End_ExtPot_Ptr != NULL )    End_ExtPot_Ptr();
+   if ( OPT__EXT_POT )
+   {
+//    set the default function pointer of the built-in external potential
+      if ( OPT__EXT_POT == EXT_POT_GREP )    End_ExtPot_Ptr = End_ExtPot_GREP;
+
+      if ( End_ExtPot_Ptr != NULL )    End_ExtPot_Ptr();
+   }
 
 
    if ( MPI_Rank == 0 )    Aux_Message( stdout, "%s ... done\n", __FUNCTION__ );

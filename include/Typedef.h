@@ -51,6 +51,8 @@ const TestProbID_t
    TESTPROB_HYDRO_MHD_LINEAR_WAVE              =   15,
    TESTPROB_HYDRO_JEANS_INSTABILITY            =   16,
 
+   TESTPROB_HYDRO_GREP_MIGRATIONTEST           =   20,
+
    TESTPROB_ELBDM_EXTPOT                       = 1000;
 
 
@@ -290,7 +292,8 @@ typedef int OptExtPot_t;
 const OptExtPot_t
    EXT_POT_NONE  = 0,
    EXT_POT_FUNC  = 1,
-   EXT_POT_TABLE = 2;
+   EXT_POT_TABLE = 2,
+   EXT_POT_GREP  = 3;
 
 
 // different usages of external potential when computing total potential on level Lv

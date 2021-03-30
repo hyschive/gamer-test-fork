@@ -89,7 +89,7 @@ OptRSolver1st_t      OPT__1ST_FLUX_CORR_SCHEME;
 bool                 OPT__FLAG_PRES_GRADIENT, OPT__FLAG_LOHNER_ENGY, OPT__FLAG_LOHNER_PRES, OPT__FLAG_LOHNER_TEMP;
 bool                 OPT__FLAG_VORTICITY, OPT__FLAG_JEANS, JEANS_MIN_PRES, OPT__LAST_RESORT_FLOOR;
 bool                 OPT__OUTPUT_DIVVEL, OPT__OUTPUT_MACH, OPT__OUTPUT_PRES, OPT__OUTPUT_CS;
-bool                 OPT__OUTPUT_TEMP;
+bool                 OPT__OUTPUT_TEMP, OPT__OUTPUT_ENTR;
 int                  OPT__CK_NEGATIVE, JEANS_MIN_PRES_LEVEL, JEANS_MIN_PRES_NCELL;
 double               MIN_DENS, MIN_PRES, MIN_EINT, MIN_TEMP;
 #ifdef DUAL_ENERGY
@@ -241,9 +241,22 @@ EoS_GENE_t EoS_General_GPUPtr       = NULL;
 
 // c. data structure for the CPU/GPU solvers
 EoS_t EoS;
+
+// d. others
+#if ( EOS == EOS_NUCLEAR )
+char NUC_TABLE[MAX_STRING];
+#endif
 #endif // HYDRO
 
-// (2-10) source terms
+// (2-10) GREP
+int    GREP_CENTER_METHOD;
+int    GREP_MAXITER;
+bool   GREP_LOGBIN;
+double GREP_LOGBINRATIO;
+double GREP_MAXRADIUS;
+double GREP_MINBINSIZE;
+
+// (2-11) source terms
 SrcTerms_t SrcTerms;
 #if ( MODEL == HYDRO )
 double     Src_Dlep_AuxArray_Flt[SRC_NAUX_DLEP];

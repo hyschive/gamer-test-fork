@@ -108,8 +108,13 @@ void Init_Field()
 
 
 // 4. must put all built-in scalars at the END of the field list and with the same order as their
-//    corresponding symbolic constants (e.g., ENPY/EINT/CRAY) defined in Macro.h
+//    corresponding symbolic constants (e.g., YE/ENPY/EINT/CRAY) defined in Macro.h
 //    --> as we still rely on these constants (e.g., DENS, ENPY) in the fluid solvers
+#  if ( EOS == EOS_NUCLEAR )
+   Idx_Ye      = AddField( "Ye",       NORMALIZE_NO, INTERP_FRAC_YES );
+   if ( Idx_Ye   != YE )      Aux_Error( ERROR_INFO, "inconsistent Idx_Ye   (%d != %d) !!\n", Idx_Ye,   YE   );
+#  endif
+
 #  ifdef COSMIC_RAY
    Idx_CRay    = AddField( "CRay",     NORMALIZE_NO, INTERP_FRAC_NO );
    if ( Idx_CRay != CRAY )    Aux_Error( ERROR_INFO, "inconsistent Idx_CRay (%d != %d) !!\n", Idx_CRay, CRAY );

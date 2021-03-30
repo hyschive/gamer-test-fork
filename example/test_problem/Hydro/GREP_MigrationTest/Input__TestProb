@@ -1,0 +1,5 @@
+# problem-specific runtime parameters
+NeutronStar_ICFile   tovstar_short  # input file of initial condition
+
+Bfield_Ab            1.0e15         # magnetic field strength (in gauss) [1e15]
+Bfield_np            0.0            # dependence on the density          [0.0]

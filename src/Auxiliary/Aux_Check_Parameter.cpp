@@ -259,7 +259,12 @@ void Aux_Check_Parameter()
 #  if ( MODEL == HYDRO )
    if (  OPT__OUTPUT_TEMP  &&  EoS_DensEint2Temp_CPUPtr == NULL )
       Aux_Error( ERROR_INFO, "EoS_DensEint2Temp_CPUPtr == NULL for OPT__OUTPUT_TEMP !!\n" );
+
+#  if ( EOS != EOS_NUCLEAR )
+   if ( OPT__OUTPUT_ENTR )
+      Aux_Error( ERROR_INFO, "OPT__OUTPUT_ENTR is only supported by EOS_NUCLEAR !!\n" );
 #  endif
+#  endif // #if ( MODEL == HYDRO )
 
 
 
@@ -685,12 +690,12 @@ void Aux_Check_Parameter()
          Aux_Error( ERROR_INFO, "JEANS_MIN_PRES currently only supports EOS_GAMMA !!\n" );
 #  endif // if ( EOS != EOS_GAMMA )
 
-#  if ( EOS == EOS_NUCLEAR )
-      Aux_Error( ERROR_INFO, "EOS_NUCLEAR is not supported yet !!\n" );
-#  endif
-
 #  if ( EOS == EOS_TABULAR )
       Aux_Error( ERROR_INFO, "EOS_TABULAR is not supported yet !!\n" );
+#  endif
+
+#  if ( EOS == EOS_NUCLEAR  &&  !defined SUPPORT_HDF5 )
+#     error : ERROR : must enable SUPPORT_HDF5 for EOS_NUCLEAR !!
 #  endif
 
 #  ifdef BAROTROPIC_EOS
@@ -703,6 +708,9 @@ void Aux_Check_Parameter()
 #     endif
 #  endif // #ifdef BAROTROPIC_EOS ... else ...
 
+#  if ( defined NEUTRINO_SCHEME  &&  NEUTRINO_SCHEME != LIGHTBULB  &&  NEUTRINO_SCHEME != IDSA  &&  NEUTRINO_SCHEME != M1 )
+#     error : ERROR : unsupported neutrino updating scheme (LIGHTBULB/IDSA/M1) !!
+#  endif
 
    if ( OPT__1ST_FLUX_CORR != FIRST_FLUX_CORR_NONE )
    {
@@ -1156,6 +1164,19 @@ void Aux_Check_Parameter()
       Aux_Error( ERROR_INFO, "unsupported option \"OPT__BC_POT = %d\" [1/2] !!\n", OPT__BC_POT );
 
    if ( NEWTON_G <= 0.0 )     Aux_Error( ERROR_INFO, "NEWTON_G (%14.7e) <= 0.0 !!\n", NEWTON_G );
+
+#  ifdef GREP
+   if ( OPT__EXT_POT != EXT_POT_GREP )
+      Aux_Error( ERROR_INFO, "OPT__EXT_POT != EXT_POT_GREP even though GREP is enabled in the Makefile !!\n" );
+
+#  ifdef UNSPLIT_GRAVITY
+#     error : ERROR : GREP and UNSPLIT_GRAVITY are incompatible !!
+#  endif
+
+#  else
+   if ( OPT__EXT_POT == EXT_POT_GREP )
+      Aux_Error( ERROR_INFO, "must enable GREP in the Makefile for OPT__EXT_POT == EXT_POT_GREP !!\n" );
+#  endif // #ifdef GREP ... else ...
 
 
 // warnings

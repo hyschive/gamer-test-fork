@@ -10,7 +10,7 @@
 #elif ( EOS == EOS_ISOTHERMAL )
 // nothing to do
 #elif ( EOS == EOS_NUCLEAR )
-# error : ERROR : EOS_NUCLEAR is NOT supported yet !!
+void EoS_End_Nuclear();
 #endif // # EOS
 
 // this function pointer can be set by a test problem initializer for non-built-in EoS
@@ -42,7 +42,7 @@ void EoS_End()
 #  elif ( EOS == EOS_ISOTHERMAL )
 // nothing to do
 #  elif ( EOS == EOS_NUCLEAR )
-#  error : ERROR : EOS_NUCLEAR is NOT supported yet !!
+   EoS_End_Ptr = EoS_End_Nuclear;
 #  endif // # EOS
 
 

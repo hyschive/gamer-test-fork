@@ -97,7 +97,7 @@ extern OptRSolver1st_t  OPT__1ST_FLUX_CORR_SCHEME;
 extern bool             OPT__FLAG_PRES_GRADIENT, OPT__FLAG_LOHNER_ENGY, OPT__FLAG_LOHNER_PRES, OPT__FLAG_LOHNER_TEMP;
 extern bool             OPT__FLAG_VORTICITY, OPT__FLAG_JEANS, JEANS_MIN_PRES, OPT__LAST_RESORT_FLOOR;
 extern bool             OPT__OUTPUT_DIVVEL, OPT__OUTPUT_MACH, OPT__OUTPUT_PRES, OPT__OUTPUT_CS;
-extern bool             OPT__OUTPUT_TEMP;
+extern bool             OPT__OUTPUT_TEMP, OPT__OUTPUT_ENTR;
 extern int              OPT__CK_NEGATIVE, JEANS_MIN_PRES_LEVEL, JEANS_MIN_PRES_NCELL;
 extern double           MIN_DENS, MIN_PRES, MIN_EINT, MIN_TEMP;
 #ifdef DUAL_ENERGY
@@ -255,10 +255,23 @@ extern EoS_DT2P_t EoS_DensTemp2Pres_GPUPtr;
 extern EoS_GENE_t EoS_General_GPUPtr;
 #endif
 extern EoS_t EoS;
+#if ( EOS == EOS_NUCLEAR )
+extern char NUC_TABLE[MAX_STRING];
+#endif
 #endif // HYDRO
 
 
-// (2-10) source terms
+// (2-10) GREP
+// =======================================================================================================
+extern int    GREP_CENTER_METHOD;
+extern int    GREP_MAXITER;
+extern bool   GREP_LOGBIN;
+extern double GREP_LOGBINRATIO;
+extern double GREP_MAXRADIUS;
+extern double GREP_MINBINSIZE;
+
+
+// (2-11) source terms
 // =======================================================================================================
 extern SrcTerms_t SrcTerms;
 #if ( MODEL == HYDRO )
