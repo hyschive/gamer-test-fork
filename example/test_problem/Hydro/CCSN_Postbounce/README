@@ -1,0 +1,23 @@
+Compilation flags:
+========================================
+Enable : MODEL=HYDRO, GRAVITY, GREP, EOS=EOS_NUCLEAR
+Disable:
+
+Default setup:
+========================================
+1. Enable external potential
+   --> OPT__EXT_POT = 3
+
+Note:
+========================================
+1. A test problem for core-collapse supernova simulations
+   --> initial condition is generated from FLASH, 15 ms after core bounce
+
+      data_s20GREP_SFHo_15ms           : SFHo  nuclear EoS
+      data_s20GREP_LS220_nonupres_15ms : LS220 nuclear EoS
+
+TODO:
+========================================
+1. Update the Input__Flag_Rho and Input__Flag_User
+
+2. Output the GW
