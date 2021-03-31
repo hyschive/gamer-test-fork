@@ -11,9 +11,9 @@ void CUAPI_MemFree_NuclearEoS();
 extern real *g_alltables;
 extern real *g_alltables_mode;
 extern real *g_logrho;
-extern real *g_logeps;
+extern real *g_logtemp;
 extern real *g_yes;
-extern real *g_logtemp_mode;
+extern real *g_logeps_mode;
 extern real *g_entr_mode;
 extern real *g_logprss_mode;
 
@@ -38,9 +38,9 @@ void EoS_End_Nuclear()
    free( g_alltables      );  g_alltables      = NULL;
    free( g_alltables_mode );  g_alltables_mode = NULL;
    free( g_logrho         );  g_logrho         = NULL;
-   free( g_logeps         );  g_logeps         = NULL;
+   free( g_logtemp        );  g_logtemp        = NULL;
    free( g_yes            );  g_yes            = NULL;
-   free( g_logtemp_mode   );  g_logtemp_mode   = NULL;
+   free( g_logeps_mode    );  g_logeps_mode    = NULL;
    free( g_entr_mode      );  g_entr_mode      = NULL;
    free( g_logprss_mode   );  g_logprss_mode   = NULL;
 

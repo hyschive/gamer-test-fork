@@ -21,7 +21,7 @@
 #define NUC_AUX_MEV2KELVIN    7     // AuxArray_Flt: convert MeV        to kelvin
 
 #define NUC_AUX_NRHO          0     // AuxArray_Int: nrho
-#define NUC_AUX_NEPS          1     // AuxArray_Int: neps
+#define NUC_AUX_NTEMP         1     // AuxArray_Int: ntemp
 #define NUC_AUX_NYE           2     // AuxArray_Int: nye
 #define NUC_AUX_NMODE         3     // AuxArray_Int: nmode
 
@@ -30,9 +30,9 @@
 #define NUC_TAB_ALL           0     // alltables
 #define NUC_TAB_ALL_MODE      1     // alltables_mode
 #define NUC_TAB_RHO           2     // logrho
-#define NUC_TAB_EPS           3     // logeps
+#define NUC_TAB_TEMP          3     // logtemp
 #define NUC_TAB_YE            4     // yes
-#define NUC_TAB_TEMP_MODE     5     // logtemp_mode
+#define NUC_TAB_ENGY_MODE     5     // logenergy_mode
 #define NUC_TAB_ENTR_MODE     6     // entr_mode
 #define NUC_TAB_PRES_MODE     7     // logprss_mode
 

@@ -24,13 +24,13 @@ static bool Use_Temp_Mode = false;
 static void Record_CentralDens();
 static bool Flag_User_PostBounce( const int i, const int j, const int k, const int lv, const int PID, const double *Threshold );
 
-extern void nuc_eos_C_short( const real xrho, real *xenr, const real xye,
-                             real *xtemp, real *xent, real *xprs,
+extern void nuc_eos_C_short( const real xrho, real *xtemp, const real xye,
+                             real *xenr, real *xent, real *xprs,
                              real *xcs2, real *xmunu, const real energy_shift,
-                             const int nrho, const int neps, const int nye, const int nmode,
+                             const int nrho, const int ntemp, const int nye, const int nmode,
                              const real *alltables, const real *alltables_mode,
-                             const real *logrho, const real *logeps, const real *yes,
-                             const real *logtemp_mode, const real *entr_mode, const real *logprss_mode,
+                             const real *logrho, const real *logtemp, const real *yes,
+                             const real *logeps_mode, const real *entr_mode, const real *logprss_mode,
                              const int keymode, int *keyerr, const real rfeps );
 
 
@@ -230,7 +230,7 @@ void SetGridIC( real fluid[], const double x, const double y, const double z, co
       const real sEint2Code  = EoS_AuxArray_Flt[NUC_AUX_VSQR2CODE];
 
       const int  NRho        = EoS_AuxArray_Int[NUC_AUX_NRHO  ];
-      const int  NEps        = EoS_AuxArray_Int[NUC_AUX_NEPS  ];
+      const int  NTemp       = EoS_AuxArray_Int[NUC_AUX_NTEMP ];
       const int  NYe         = EoS_AuxArray_Int[NUC_AUX_NYE   ];
       const int  NMode       = EoS_AuxArray_Int[NUC_AUX_NMODE ];
 
@@ -240,14 +240,15 @@ void SetGridIC( real fluid[], const double x, const double y, const double z, co
       real sEint_CGS = NULL_REAL;
       real Useless   = NULL_REAL;
       int  Err       = NULL_INT;
+      const real Tolerance = 1.0e-10;
 
-      nuc_eos_C_short( Dens_CGS, &sEint_CGS, Ye, &Temp_MeV, &Useless, &Useless, &Useless, &Useless,
-                       EnergyShift, NRho, NEps, NYe, NMode,
+      nuc_eos_C_short( Dens_CGS, &Temp_MeV, Ye, &sEint_CGS,&Useless, &Useless, &Useless, &Useless,
+                       EnergyShift, NRho, NTemp, NYe, NMode,
                        h_EoS_Table[NUC_TAB_ALL],       h_EoS_Table[NUC_TAB_ALL_MODE],
-                       h_EoS_Table[NUC_TAB_RHO],       h_EoS_Table[NUC_TAB_EPS],
-                       h_EoS_Table[NUC_TAB_YE],        h_EoS_Table[NUC_TAB_TEMP_MODE],
+                       h_EoS_Table[NUC_TAB_RHO],       h_EoS_Table[NUC_TAB_TEMP],
+                       h_EoS_Table[NUC_TAB_YE],        h_EoS_Table[NUC_TAB_ENGY_MODE],
                        h_EoS_Table[NUC_TAB_ENTR_MODE], h_EoS_Table[NUC_TAB_PRES_MODE],
-                       Mode, &Err, NULL_REAL );
+                       Mode, &Err, Tolerance );
 
       if ( Err )  sEint_CGS = NAN;
 
@@ -257,11 +258,12 @@ void SetGridIC( real fluid[], const double x, const double y, const double z, co
    else // Pressure Mode
    {
       real *Passive = new real [NCOMP_PASSIVE];
+      real Useless  = NULL_REAL;
 
       Passive[ YE - NCOMP_FLUID ] = Ye*Dens;
 
       Eint = EoS_DensPres2Eint_CPUPtr( Dens, Pres, Passive, EoS_AuxArray_Flt,
-                                       EoS_AuxArray_Int, h_EoS_Table );
+                                       EoS_AuxArray_Int, h_EoS_Table, &Useless );
 
       delete [] Passive;
    }
