@@ -207,9 +207,9 @@ void nuc_eos_C_ReadTable( char *nuceos_table_name )
 
 // change ordering of g_alltables[] so that the table kind is the fastest changing index
    for (int iv=0; iv<NUC_TABLE_NVAR; iv++)
-   for (int k=0; k<g_nye;  k++)
+   for (int k=0; k<g_nye;   k++)
    for (int j=0; j<g_ntemp; j++)
-   for (int i=0; i<g_nrho; i++)
+   for (int i=0; i<g_nrho;  i++)
    {
       const long indold = i + g_nrho*( j + g_ntemp*(k + g_nye*iv) );
       const long indnew = iv + NUC_TABLE_NVAR*( i + g_nrho*(j + g_ntemp*k) );

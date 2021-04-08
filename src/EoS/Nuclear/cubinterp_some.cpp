@@ -33,7 +33,7 @@ void nuc_eos_C_linterp_some( const real x, const real y, const real z,
 // Note        :  1. Invoked by nuc_eos_C_short()
 //
 // Parameter   :  x           : Input vector of first  variable (rho)
-//                y           : Input vector of second variable (eps)
+//                y           : Input vector of second variable (temp)
 //                z           : Input vector of third  variable (Y_e)
 //                output_vars : Output variables of interpolated function values
 //                alltables   : 3D array of tabulated variables
@@ -80,11 +80,11 @@ void nuc_eos_C_cubinterp_some( const real x, const real y, const real z,
 
 #  if 0
    dx  = drho;
-   dy  = deps;
+   dy  = dtemp;
    dz  = dye;
 
    dxi = drhoi;
-   dyi = depsi;
+   dyi = dtempi;
    dzi = dyei;
 #  endif
 
