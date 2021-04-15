@@ -298,9 +298,9 @@
 #     define FLU_BLOCK_SIZE_X       256
 #     else
 #     if ( EOS == EOS_NUCLEAR )
-#     define FLU_BLOCK_SIZE_X       256      // not optimized yet
+#     define FLU_BLOCK_SIZE_X       192      // not optimized yet
 #     else
-#     define FLU_BLOCK_SIZE_X       512      // not optimized yet
+#     define FLU_BLOCK_SIZE_X       256      // not optimized yet
 #     endif // EOS
 #     endif // FLOAT8
 #  else

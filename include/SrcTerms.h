@@ -46,6 +46,7 @@ struct SrcTerms_t
 
    bool   Any;
    bool   Deleptonization;
+   bool   LightBulb;
    bool   User;
 
    double BoxCenter[3];
@@ -70,6 +71,11 @@ struct SrcTerms_t
    real     *Dlep_Profile_RadiusDevPtr;
    int       Dlep_Profile_NBin;
 #  endif
+
+// light bulb
+   SrcFunc_t LigB_FuncPtr;
+   double   *LigB_AuxArrayDevPtr_Flt;
+   int      *LigB_AuxArrayDevPtr_Int;
 
 // user-specified source term
    SrcFunc_t User_FuncPtr;
