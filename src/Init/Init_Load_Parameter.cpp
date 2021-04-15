@@ -215,6 +215,28 @@ void Init_Load_Parameter()
 #  endif
 
 
+// supernova
+#  if (EOS == NUCLEAR)
+   ReadPara->Add( "EOS_POSTBOUNCE",            &EOS_POSTBOUNCE,                false,         Useless_bool,     Useless_bool      );
+   ReadPara->Add( "EOS_BOUNCETIME",            &EOS_BOUNCETIME,                0.0,           0.0,              NoMax_double      );
+#  endif
+
+#  ifdef DELEPTIONIZATION
+   ReadPara->Add( "DELEP_ENU",                      &DELEP_ENU,                     10.0,       0.0,           NoMax_double   );
+   ReadPara->Add( "DELEP_RHO1",                     &DELEP_RHO1,                    4.e8,       0.0,           NoMax_double   );
+   ReadPara->Add( "DELEP_RHO2",                     &DELEP_RHO2,                    7.e12,      0.0,           NoMax_double   );
+   ReadPara->Add( "DELEP_YE1",                      &DELEP_YE1,                     0.5,        0.0,           1.0   );
+   ReadPara->Add( "DELEP_YE2",                      &DELEP_YE2,                     0.275,      0.0,           1.0   );
+   ReadPara->Add( "DELEP_YEC",                      &DELEP_YEC,                     0.015,      0.0,           1.0   );
+#  endif
+
+#  ifdef NEUTRINO_SCHEME
+   ReadPara->Add( "LB_LNU",                      &LB_LNU,                     2.2e52,           0.0,           NoMax_double   );
+   ReadPara->Add( "LB_TNU",                      &LB_TNU,                     4.0,              0.0,           NoMax_double   );
+   ReadPara->Add( "LB_HEATFACTOR",               &LB_HEATFACTOR,              1.0,              0.0,           NoMax_double   );
+#  endif
+
+
 // fluid solvers in HYDRO
 #  if ( MODEL == HYDRO )
 #  if ( EOS == EOS_GAMMA )
