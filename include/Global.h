@@ -286,20 +286,20 @@ extern bool   EOS_POSTBOUNCE;
 extern double EOS_BOUNCETIME;
 # endif
 
-#ifdef DELEPTIONIZATION
+//#ifdef DELEPTIONIZATION
 extern double DELEP_ENU;
 extern double DELEP_RHO1;
 extern double DELEP_RHO2;
 extern double DELEP_YE1;
 extern double DELEP_YE2;
 extern double DELEP_YEC;
-#endif
+//#endif
 
-#ifdef NEUTRINO_SCHEME
+//#ifdef NEUTRINO_SCHEME
 extern double LB_LNU;
 extern double LB_TNU;
 extern double LB_HEATFACTOR;
-#endif
+//#endif
 
 // (2-11) user-defined derived fields
 // =======================================================================================================
