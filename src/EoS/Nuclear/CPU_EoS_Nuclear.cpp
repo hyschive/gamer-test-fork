@@ -217,10 +217,15 @@ static real EoS_DensEint2Pres_Nuclear( const real Dens_Code, const real Eint_Cod
    real Temp_MeV  = NULL_REAL;
    real Entr      = NULL_REAL;
    real Pres_CGS  = NULL_REAL;
+   real mu_nu     = NULL_REAL;
    real Useless   = NULL_REAL;
 
    int  Err       = NULL_INT;
+#ifdef FLOAT8
    const real Tolerance = 1e-10;
+#else
+   const real Tolerance = 1e-6;
+#endif
 
 
 // check floating-point overflow and Ye
@@ -240,7 +245,7 @@ static real EoS_DensEint2Pres_Nuclear( const real Dens_Code, const real Eint_Cod
 
 
 // invoke the nuclear EoS driver
-   nuc_eos_C_short( Dens_CGS, &Temp_MeV, Ye, &sEint_CGS, &Entr, &Pres_CGS, &Useless, &Useless,
+   nuc_eos_C_short( Dens_CGS, &Temp_MeV, Ye, &sEint_CGS, &Entr, &Pres_CGS, &Useless, &mu_nu,
                     EnergyShift, NRho, NTemp, NYe, NMode,
                     Table[NUC_TAB_ALL], Table[NUC_TAB_ALL_MODE], Table[NUC_TAB_RHO], Table[NUC_TAB_TEMP],
                     Table[NUC_TAB_YE], Table[NUC_TAB_ENGY_MODE], Table[NUC_TAB_ENTR_MODE], Table[NUC_TAB_PRES_MODE],
@@ -252,6 +257,7 @@ static real EoS_DensEint2Pres_Nuclear( const real Dens_Code, const real Eint_Cod
       Temp_MeV = NAN;
       Entr     = NAN;
       Pres_CGS = NAN;
+      mu_nu    = NAN;
    }
 
    const real Temp_Kelv = Temp_MeV * MeV2Kelvin;
@@ -288,6 +294,7 @@ static real EoS_DensEint2Pres_Nuclear( const real Dens_Code, const real Eint_Cod
    {
       ExtraInOut[0] = Temp_Kelv;
       ExtraInOut[1] = Entr;
+      ExtraInOut[2] = mu_nu;
    }
 
 
@@ -355,7 +362,11 @@ static real EoS_DensPres2Eint_Nuclear( const real Dens_Code, const real Pres_Cod
    real sEint_CGS = NULL_REAL;
    real Useless   = NULL_REAL;
    int  Err       = NULL_INT;
+#ifdef FLOAT8
    const real Tolerance = 1e-10;
+#else
+   const real Tolerance = 1e-6;
+#endif
 
 
 // check floating-point overflow and Ye
@@ -471,7 +482,11 @@ static real EoS_DensPres2CSqr_Nuclear( const real Dens_Code, const real Pres_Cod
    real Cs2_CGS  = NULL_REAL;
    real Useless  = NULL_REAL;
    int  Err      = NULL_INT;
-   const real Tolerance = 1.0e-10;
+#ifdef FLOAT8
+   const real Tolerance = 1e-10;
+#else
+   const real Tolerance = 1e-6;
+#endif
 
 
 // check floating-point overflow and Ye
@@ -692,7 +707,11 @@ static void EoS_General_Nuclear( const int Mode, real Out[], const real In[], co
          real Pres_CGS  = NULL_REAL;
          real Useless   = NULL_REAL;
          int  Err       = NULL_INT;
-         const real Tolerance = 1.0e-10;
+#ifdef FLOAT8
+   const real Tolerance = 1e-10;
+#else
+   const real Tolerance = 1e-6;
+#endif
 
 //       check floating-point overflow and Ye
 #        ifdef GAMER_DEBUG
@@ -789,7 +808,11 @@ static void EoS_General_Nuclear( const int Mode, real Out[], const real In[], co
          real sEint_CGS = NULL_REAL;
          real Useless   = NULL_REAL;
          int  Err       = NULL_INT;
-         const real Tolerance = 1.0e-10;
+#ifdef FLOAT8
+   const real Tolerance = 1e-10;
+#else
+   const real Tolerance = 1e-6;
+#endif
 
 //       check floating-point overflow and Ye
 #        ifdef GAMER_DEBUG
