@@ -164,7 +164,7 @@ static void Src_Deleptonization( real fluid[], const real B[],
 // profiles are stored in SrcTerms->Dlep_Profile_DataDevPtr/Dlep_Profile_RadiusDevPtr/Dlep_Profile_NBin
 // --> see "include/SrcTerms.h"
 
-#  if (1)//( EOS == EOS_NUCLEAR )  &&  ( defined YeOfRhoFunc )
+#  if ( EOS == EOS_NUCLEAR )  &&  ( defined YeOfRhoFunc )
 
    const real Delep_minDens_CGS  = 1.e6; // [g/cm^3]
    const real Q = 1.293333;
@@ -175,7 +175,7 @@ static void Src_Deleptonization( real fluid[], const real B[],
    // output Ye
    real Yout = NULL_REAL;
 
-   if (0) //( EOS_POSTBOUNCE )
+   if ( EOS_POSTBOUNCE )
    {
       return;
    }
