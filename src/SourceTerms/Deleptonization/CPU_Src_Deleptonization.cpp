@@ -1,4 +1,3 @@
-//#include "GAMER.h"
 #include "EoS.h"
 #include "CUFLU.h"
 #include "NuclearEoS.h"
@@ -557,5 +556,7 @@ real YeOfRhoFunc( const real DENS_CGS, const real DELEP_RHO1, const real DELEP_R
    return Ye;
 
 }
+
+//#endif // #ifdef DELEPTONIZATION
 
 #endif // #if ( MODEL == HYDRO )

@@ -30,6 +30,11 @@ void Src_Init()
 
    if ( MPI_Rank == 0 )    Aux_Message( stdout, "%s ...\n", __FUNCTION__ );
 
+#ifdef DELEPTONIZATION
+   SrcTerms.Deleptonization = true;
+#elif
+   SrcTerms.Deleptonization = false;
+#endif
 
 // check if at least one source term is activated
    if (
