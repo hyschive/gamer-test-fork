@@ -191,7 +191,7 @@ void nuc_eos_C_short( const real xrho, real *xtemp, const real xye,
       break;
    } // switch ( keymode )
 
- 
+
    real res[5]; // result array
 
 // linear interolation for other variables

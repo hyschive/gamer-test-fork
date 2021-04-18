@@ -5,12 +5,10 @@
 #define SRC_AUX_ESHIFT              0
 #define SRC_AUX_DENS2CGS            1
 #define SRC_AUX_VSQR2CGS            2
-#define SRC_AUX_KELVIN2MEV          3 
-#define SRC_AUX_MEV2KELVIN          4
-#define SRC_AUX_GAMMA               5
-#define SRC_AUX_LB_LNU              6
-#define SRC_AUX_LB_TNU              7
-#define SRC_AUX_LB_HEATFACTOR       8
+#define SRC_AUX_GAMMA               3
+#define SRC_AUX_LB_LNU              4
+#define SRC_AUX_LB_TNU              5
+#define SRC_AUX_LB_HEATFACTOR       6
 
 
 // external functions and GPU-related set-up
@@ -19,11 +17,17 @@
 #include "CUAPI.h"
 #include "CUFLU_Shared_FluUtility.cu"
 #include "CUDA_ConstMemory.h"
+#include "linterp_some.cu"
 
-//extern real (*d_SrcDlepProf_Data)[SRC_DLEP_PROF_NBINMAX];
-//extern real  *d_SrcDlepProf_Radius;
 
-#endif // #ifdef __CUDACC__
+#else
+
+void nuc_eos_C_linterp_some( const real x, const real y, const real z,
+                             real *output_vars, const real *alltables,
+                             const int nx, const int ny, const int nz, const int nvars,
+                             const real *xt, const real *yt, const real *zt );
+
+#endif // #ifdef __CUDACC__ ... else ...
 
 
 // local function prototypes
@@ -87,17 +91,11 @@ void Src_SetAuxArray_LightBulb( double AuxArray_Flt[], int AuxArray_Int[] )
    AuxArray_Flt[SRC_AUX_ESHIFT            ] = EoS_AuxArray_Flt[NUC_AUX_ESHIFT];
    AuxArray_Flt[SRC_AUX_DENS2CGS          ] = UNIT_D;
    AuxArray_Flt[SRC_AUX_VSQR2CGS          ] = SQR( UNIT_V );
-   AuxArray_Flt[SRC_AUX_KELVIN2MEV        ] = Const_kB_eV*1.0e-6;
-   AuxArray_Flt[SRC_AUX_MEV2KELVIN        ] = 1.0  / AuxArray_Flt[NUC_AUX_KELVIN2MEV];
    AuxArray_Flt[SRC_AUX_GAMMA             ] = GAMMA;
    AuxArray_Flt[SRC_AUX_LB_LNU            ] = LB_LNU;
    AuxArray_Flt[SRC_AUX_LB_TNU            ] = LB_TNU;
    AuxArray_Flt[SRC_AUX_LB_HEATFACTOR     ] = LB_HEATFACTOR;
 
-   AuxArray_Int[NUC_AUX_NRHO      ] = g_nrho;
-   AuxArray_Int[NUC_AUX_NTEMP     ] = g_ntemp;
-   AuxArray_Int[NUC_AUX_NYE       ] = g_nye;
-   AuxArray_Int[NUC_AUX_NMODE     ] = g_nmode;
 
 } // FUNCTION : Src_SetAuxArray_LightBulb
 #endif // #ifndef __CUDACC__
@@ -154,40 +152,27 @@ void Src_LightBulb( real fluid[], const real B[],
    Eint -= CoolRate*dt;
    fluid[ENGY] = Ek + Eint;
    */
+   const real EnergyShift   = AuxArray_Flt[SRC_AUX_ESHIFT       ];
+   const real Dens2CGS      = AuxArray_Flt[SRC_AUX_DENS2CGS     ];
+   const real sEint2CGS     = AuxArray_Flt[SRC_AUX_VSQR2CGS     ];
+   const real GAAMA         = AuxArray_Flt[SRC_AUX_GAMMA        ];
+   const real LB_LNU        = AuxArray_Flt[SRC_AUX_LB_LNU       ];
+   const real LB_TNU;       = AuxArray_Flt[SRC_AUX_LB_TNU       ];
+   const real LB_HEATFACTOR = AuxArray_Flt[SRC_AUX_LB_HEATFACTOR];
 
-   const real EnergyShift = AuxArray_Flt[SRC_AUX_ESHIFT    ];
-   const real Dens2CGS    = AuxArray_Flt[SRC_AUX_DENS2CGS  ];
-   const real sEint2CGS   = AuxArray_Flt[SRC_AUX_VSQR2CGS  ];
-   const real MeV2Kelvin  = AuxArray_Flt[SRC_AUX_MEV2KELVIN];
+   const int  NRho          = EoS->AuxArrayDevPtr_Int[NUC_AUX_NRHO ];
+   const int  NTemp         = EoS->AuxArrayDevPtr_Int[NUC_AUX_NTEMP];
+   const int  NYe           = EoS->AuxArrayDevPtr_Int[NUC_AUX_NYE  ];
 
-   const int  NRho        = AuxArray_Int[NUC_AUX_NRHO ];
-   const int  NTemp       = AuxArray_Int[NUC_AUX_NTEMP];
-   const int  NYe         = AuxArray_Int[NUC_AUX_NYE  ];
-   const int  NMode       = AuxArray_Int[NUC_AUX_NMODE];
 
-   //const double mev_to_kelvin = 1.1604447522806e10; 
-   
-   //double xdens,dens, ener, entr, ye;
-   //double xtmp, xenr, xprs, xent, xcs2, xdedt, xdpderho, xdpdrhoe, xmunu;
    real radius, xc, yc, zc;
 
-#ifdef FLOAT8
-   const real Tolerance = 1e-10;
-#else
-   const real Tolerance = 1e-6;
-#endif
-
-   real xXp, xXn;
+   real   xXp, xXn;
    double dEneut, T6;
+   const real BoxCenter[3] = { 0.5*amr->BoxSize[0], 0.5*amr->BoxSize[1], 0.5*amr->BoxSize[2] }; 
+   const real Gamma_m1     = GAMMA - 1.0;
 
-   const real  BoxCenter[3] = { 0.5*amr->BoxSize[0], 0.5*amr->BoxSize[1], 0.5*amr->BoxSize[2] }; 
-
-   real logd, logt;
-   real res[19];
-
-   const real Gamma_m1 = GAMMA - 1.0;
-
-   if (!EOS_POSTBOUNCE) 
+   if (0) // (!EOS_POSTBOUNCE) 
    {
         return;
    }
@@ -202,36 +187,25 @@ void Src_LightBulb( real fluid[], const real B[],
    Eint_Code      = Eint_Code - 0.5*( SQR(fluid[MOMX]) + SQR(fluid[MOMY]) + SQR(fluid[MOMZ]) )/Dens_Code;
    real sEint_CGS = ( Eint_Code * sEint2CGS / Dens_Code ) - EnergyShift; // specific internal energy
 
-   real Temp_MeV = 10.0; // trial value [MeV]
 
-   real Useless  = NULL_REAL;
-   int Err = NULL_INT;
-   nuc_eos_C_short( Dens_CGS, &Temp_MeV, Ye, &sEint_CGS, &Useless, &Useless, &Useless, &Useless,
-                    EnergyShift, NRho, NTemp, NYe, NMode,
-                    EoS.Table[NUC_TAB_ALL], EoS.Table[NUC_TAB_ALL_MODE], EoS.Table[NUC_TAB_RHO], EoS.Table[NUC_TAB_TEMP],
-                    EoS.Table[NUC_TAB_YE],  EoS.Table[NUC_TAB_ENGY_MODE], EoS.Table[NUC_TAB_ENTR_MODE], EoS.Table[NUC_TAB_PRES_MODE],
-                    0, &Err, Tolerance );
-
-//       trigger a *hard failure* if the EoS driver fails
-         if ( Err )
-         {
-            sEint_CGS = NAN;
-            Entr      = NAN;
-            Pres_CGS  = NAN;
-         }
+// Nuclear EoSs
+   real ExtraInOut[3];
+   EoS->DensEint2Pres_FuncPtr( Dens_Code, Eint_Code, &Ye, EoS->AuxArrayDevPtr_Flt, EoS->AuxArrayDevPtr_Int,
+                               EoS->Table, ExtraInOut ); // energy mode
+   real Temp_MeV = ExtraInOut[0];
 
 
-   real logd = MIN(MAX(Dens_CGS, EoS.Table[NUC_TAB_RHO] [0]), EoS.Table[NUC_TAB_RHO ][NRho] );
-   real logt = MIN(MAX(Temp_MeV, EoS.Table[NUC_TAB_TEMP][0]), EoS.Table[NUC_TAB_TEMP][NTEMP]);
-
+   real logd = MIN(MAX(Dens_CGS, EoS->Table[NUC_TAB_RHO] [0]), EoS->Table[NUC_TAB_RHO ][NRho] );
+   real logt = MIN(MAX(Temp_MeV, EoS->Table[NUC_TAB_TEMP][0]), EoS->Table[NUC_TAB_TEMP][NTemp]);
    logd = LOG10(logd);
    logt = LOG10(logt);
 
 
-   real res[16];
    // find xp xn
-   nuc_eos_C_linterp_some( logd, logt, Ye, res, EoS.Table[NUC_TAB_ALL], NRho, NTemp, NYe, 
-                           16, EoS.Table[NUC_TAB_RHO], EoS.Table[NUC_TAB_TEMP], EoS.Table[NUC_TAB_YE] );
+   real res[16];
+   nuc_eos_C_linterp_some( logd, logt, Ye, res, EoS->Table[NUC_TAB_ALL], NRho, NTemp, NYe, 
+                           16, EoS->Table[NUC_TAB_RHO], EoS->Table[NUC_TAB_TEMP], EoS->Table[NUC_TAB_YE] );
+
    xXn = res[11];
    xXp = res[12];
 
@@ -245,7 +219,7 @@ void Src_LightBulb( real fluid[], const real B[],
    radius = radius * UNIT_L; // [cm]
 
    // calculate heating
-   dEneut = 1.544e20 * (LB_LNU/1.e52) * SQR(1.e7 / radius) * SQR(LB_TNU / 4.);
+   dEneut = 1.544e20 * (LB_LNU/1.e52) * SQR(1.e7 / radius) * SQR(LB_TNU / 4.0);
 
    // now subtract cooling 
    T6 = (0.5*Temp_MeV)*(0.5*Temp_MeV)*(0.5*Temp_MeV)*(0.5*Temp_MeV)*(0.5*Temp_MeV)*(0.5*Temp_MeV);
@@ -257,15 +231,16 @@ void Src_LightBulb( real fluid[], const real B[],
    sEint_CGS = sEint_CGS + dEneut * (UNIT_T * dt);
 
    fluid[ENGY] = (Eint_Code/sEint2CGS)*(sEint_CGS + EnergyShift) + 0.5*( SQR(fluid[MOMX]) + SQR(fluid[MOMY]) + SQR(fluid[MOMZ]) ) / fluid[DENS]; 
+   Eint_Code   = fluid[ENGY];
 
-   nuc_eos_C_short( Dens_CGS, &Temp_MeV, Ye, &sEint_CGS, &Entr_CGS, &Useless, &Useless, &Useless,
-                    EnergyShift, NRho, NTemp, NYe, NMode,
-                    EoS.Table[NUC_TAB_ALL], EoS.Table[NUC_TAB_ALL_MODE], EoS.Table[NUC_TAB_RHO], EoS.Table[NUC_TAB_TEMP],
-                    EoS.Table[NUC_TAB_YE],  EoS.Table[NUC_TAB_ENGY_MODE], EoS.Table[NUC_TAB_ENTR_MODE], EoS.Table[NUC_TAB_PRES_MODE],
-                    0, &Err, Tolerance );
+// Nuclear EoSs
+   ExtraInOut[3] = {NULL_REAL};
+   EoS->DensEint2Pres_FuncPtr( Dens_Code, Eint_Code, &Ye, EoS->AuxArrayDevPtr_Flt, EoS->AuxArrayDevPtr_Int,
+                               EoS->Table, ExtraInOut ); // energy mode
+   real Entr     = ExtraInOut[1];
 
    // update entropy using the new energy
-   fluid[ENTR] = Dens_Code * Entr_CGS; 
+   fluid[ENTR] = Dens_Code * Entr; 
    fluid[YE]   = Dens_Code * Ye;  // lb doesn't change ye
 
 //   // if using Dual energy
@@ -388,7 +363,7 @@ void Src_Init_LightBulb()
 // copy the auxiliary arrays to the GPU constant memory and store the associated addresses
 #  ifdef GPU
    Src_SetConstMemory_LightBulb( Src_LigB_AuxArray_Flt, Src_LigB_AuxArray_Int,
-                                     SrcTerms.LigB_AuxArrayDevPtr_Flt, SrcTerms.LigB_AuxArrayDevPtr_Int );
+                                 SrcTerms.LigB_AuxArrayDevPtr_Flt, SrcTerms.LigB_AuxArrayDevPtr_Int );
 #  else
    SrcTerms.LigB_AuxArrayDevPtr_Flt = Src_LigB_AuxArray_Flt;
    SrcTerms.LigB_AuxArrayDevPtr_Int = Src_LigB_AuxArray_Int;

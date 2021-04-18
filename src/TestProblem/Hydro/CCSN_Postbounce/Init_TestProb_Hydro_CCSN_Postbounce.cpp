@@ -112,7 +112,7 @@ void SetParameter()
 // ********************************************************************************************************************************
 // ReadPara->Add( "KEY_IN_THE_FILE",   &VARIABLE,              DEFAULT,       MIN,              MAX               );
 // ********************************************************************************************************************************
-   ReadPara->Add( "NeutronStar_ICFile",   NeutronStar_ICFile,    Useless_str,   Useless_str,      Useless_str       );
+   ReadPara->Add( "NeutronStar_ICFile",  NeutronStar_ICFile,     Useless_str,   Useless_str,      Useless_str       );
    ReadPara->Add( "Use_Temp_Mode",       &Use_Temp_Mode,         false,         Useless_bool,     Useless_bool      );
 #  ifdef MHD
    ReadPara->Add( "Bfield_Ab",           &Bfield_Ab,             1.0e15,        0.0,              NoMax_double      );
@@ -229,10 +229,10 @@ void SetGridIC( real fluid[], const double x, const double y, const double z, co
       const real Pres2CGS    = EoS_AuxArray_Flt[NUC_AUX_PRES2CGS ];
       const real sEint2Code  = EoS_AuxArray_Flt[NUC_AUX_VSQR2CODE];
 
-      const int  NRho        = EoS_AuxArray_Int[NUC_AUX_NRHO  ];
-      const int  NTemp       = EoS_AuxArray_Int[NUC_AUX_NTEMP ];
-      const int  NYe         = EoS_AuxArray_Int[NUC_AUX_NYE   ];
-      const int  NMode       = EoS_AuxArray_Int[NUC_AUX_NMODE ];
+      const int  NRho        = EoS_AuxArray_Int[NUC_AUX_NRHO ];
+      const int  NTemp       = EoS_AuxArray_Int[NUC_AUX_NTEMP];
+      const int  NYe         = EoS_AuxArray_Int[NUC_AUX_NYE  ];
+      const int  NMode       = EoS_AuxArray_Int[NUC_AUX_NMODE];
 
       int  Mode      = NUC_MODE_TEMP;
       real Dens_CGS  = Dens * Dens2CGS;
@@ -240,9 +240,14 @@ void SetGridIC( real fluid[], const double x, const double y, const double z, co
       real sEint_CGS = NULL_REAL;
       real Useless   = NULL_REAL;
       int  Err       = NULL_INT;
-      const real Tolerance = 1.0e-10;
+#ifdef FLOAT8
+   const real Tolerance = 1e-10;
+#else
+   const real Tolerance = 1e-6;
+#endif
 
-      nuc_eos_C_short( Dens_CGS, &Temp_MeV, Ye, &sEint_CGS,&Useless, &Useless, &Useless, &Useless,
+
+      nuc_eos_C_short( Dens_CGS, &Temp_MeV, Ye, &sEint_CGS, &Useless, &Useless, &Useless, &Useless,
                        EnergyShift, NRho, NTemp, NYe, NMode,
                        h_EoS_Table[NUC_TAB_ALL],       h_EoS_Table[NUC_TAB_ALL_MODE],
                        h_EoS_Table[NUC_TAB_RHO],       h_EoS_Table[NUC_TAB_TEMP],
@@ -382,7 +387,7 @@ void SetBFieldIC( real magnetic[], const double x, const double y, const double 
 
 //-------------------------------------------------------------------------------------------------------
 // Function    :  LoadICTable_PostBounce
-// Description :  Load inpu table file for initial condition
+// Description :  Load input table file for initial condition
 //                Temperature unit is UNIT_P / UNIT_D / Const_kB
 //-------------------------------------------------------------------------------------------------------
 void LoadICTable_PostBounce()
