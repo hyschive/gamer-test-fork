@@ -259,7 +259,6 @@ extern EoS_t EoS;
 extern char   NUC_TABLE[MAX_STRING];
 extern bool   EOS_POSTBOUNCE;
 extern double EOS_BOUNCETIME;
-# endif
 
 #endif
 #endif // HYDRO
@@ -286,7 +285,7 @@ extern double     Src_User_AuxArray_Flt[SRC_NAUX_USER];
 extern int        Src_User_AuxArray_Int[SRC_NAUX_USER];
 
 
-#ifdef DELEPTIONIZATION
+#ifdef DELEPTONIZATION
 extern double DELEP_ENU;
 extern double DELEP_RHO1;
 extern double DELEP_RHO2;
