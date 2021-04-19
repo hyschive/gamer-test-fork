@@ -10,6 +10,7 @@
 #define SRC_AUX_LB_TNU              5
 #define SRC_AUX_LB_HEATFACTOR       6
 
+
 #if ( MODEL == HYDRO )
 
 
@@ -98,6 +99,7 @@ void Src_SetAuxArray_LightBulb( double AuxArray_Flt[], int AuxArray_Int[] )
    AuxArray_Flt[SRC_AUX_LB_TNU            ] = LB_TNU;
    AuxArray_Flt[SRC_AUX_LB_HEATFACTOR     ] = LB_HEATFACTOR;
 
+
 #endif // #if NEUTRINO_SCHEME == LIGHTBULB
 #endif // #ifdef NEUTRINO_SCHEME
 
@@ -132,11 +134,11 @@ void Src_SetAuxArray_LightBulb( double AuxArray_Flt[], int AuxArray_Int[] )
 //-------------------------------------------------------------------------------------------------------
 GPU_DEVICE_NOINLINE
 static void Src_LightBulb( real fluid[], const real B[],
-                    const SrcTerms_t *SrcTerms, const real dt, const real dh,
-                    const double x, const double y, const double z,
-                    const double TimeNew, const double TimeOld,
-                    const real MinDens, const real MinPres, const real MinEint,
-                    const EoS_t *EoS, const double AuxArray_Flt[], const int AuxArray_Int[] )
+                           const SrcTerms_t *SrcTerms, const real dt, const real dh,
+                           const double x, const double y, const double z,
+                           const double TimeNew, const double TimeOld,
+                           const real MinDens, const real MinPres, const real MinEint,
+                           const EoS_t *EoS, const double AuxArray_Flt[], const int AuxArray_Int[] )
 {
 
 #ifdef NEUTRINO_SCHEME
@@ -152,7 +154,7 @@ static void Src_LightBulb( real fluid[], const real B[],
    const real EnergyShift     = AuxArray_Flt[SRC_AUX_ESHIFT       ];
    const real Dens2CGS        = AuxArray_Flt[SRC_AUX_DENS2CGS     ];
    const real sEint2CGS       = AuxArray_Flt[SRC_AUX_VSQR2CGS     ];
-   const real GAAMA           = AuxArray_Flt[SRC_AUX_GAMMA        ];
+   const real GAMMA           = AuxArray_Flt[SRC_AUX_GAMMA        ];
    const double LB_LNU        = AuxArray_Flt[SRC_AUX_LB_LNU       ];
    const double LB_TNU        = AuxArray_Flt[SRC_AUX_LB_TNU       ];
    const double LB_HEATFACTOR = AuxArray_Flt[SRC_AUX_LB_HEATFACTOR];
@@ -161,15 +163,18 @@ static void Src_LightBulb( real fluid[], const real B[],
    const int  NTemp         = EoS->AuxArrayDevPtr_Int[NUC_AUX_NTEMP];
    const int  NYe           = EoS->AuxArrayDevPtr_Int[NUC_AUX_NYE  ];
 
+   real UNIT_L = SrcTerms->Unit_L;
+   real UNIT_T = SrcTerms->Unit_T;
+
 
    real radius, xc, yc, zc;
 
    real   xXp, xXn;
    double dEneut, T6;
-   const real BoxCenter[3] = { 0.5*amr->BoxSize[0], 0.5*amr->BoxSize[1], 0.5*amr->BoxSize[2] }; 
-   const real Gamma_m1     = GAMMA - 1.0;
+   const double  BoxCenter[3] = { SrcTerms->BoxCenter[0], SrcTerms->BoxCenter[1], SrcTerms->BoxCenter[2] }; 
+   //const real Gamma_m1     = GAMMA - 1.0;
 
-   if ( !EOS_POSTBOUNCE ) 
+   if ( !EoS->EOS_POSTBOUNCE ) 
    {
         return;
    }
@@ -186,7 +191,7 @@ static void Src_LightBulb( real fluid[], const real B[],
 
 
 // Nuclear EoSs
-   real ExtraInOut[3];
+   real ExtraInOut[3] = { NULL_REAL };
    EoS->DensEint2Pres_FuncPtr( Dens_Code, Eint_Code, &Ye, EoS->AuxArrayDevPtr_Flt, EoS->AuxArrayDevPtr_Int,
                                EoS->Table, ExtraInOut ); // energy mode
    real Temp_MeV = ExtraInOut[0];
@@ -230,8 +235,8 @@ static void Src_LightBulb( real fluid[], const real B[],
    fluid[ENGY] = (Eint_Code/sEint2CGS)*(sEint_CGS + EnergyShift) + 0.5*( SQR(fluid[MOMX]) + SQR(fluid[MOMY]) + SQR(fluid[MOMZ]) ) / fluid[DENS]; 
    Eint_Code   = fluid[ENGY];
 
-// Nuclear EoSs
-   ExtraInOut[3] = {NULL_REAL};
+// Nuclear EoS
+   for ( int i=0; i<3; i++) ExtraInOut[i] = NULL_REAL;
    EoS->DensEint2Pres_FuncPtr( Dens_Code, Eint_Code, &Ye, EoS->AuxArrayDevPtr_Flt, EoS->AuxArrayDevPtr_Int,
                                EoS->Table, ExtraInOut ); // energy mode
    real Entr     = ExtraInOut[1];
