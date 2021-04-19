@@ -5,6 +5,7 @@
 // prototypes of built-in source terms
 #if ( MODEL == HYDRO )
 void Src_Init_Deleptonization();
+void Src_Init_LightBulb();
 #endif
 
 // this function pointer can be set by a test problem initializer for a user-specified source term
@@ -35,6 +36,7 @@ void Src_Init()
    if (
 #       if ( MODEL == HYDRO )
         SrcTerms.Deleptonization  ||
+        SrcTerms.LightBulb        ||
 #       endif
         SrcTerms.User
       )
@@ -65,6 +67,9 @@ void Src_Init()
    SrcTerms.Dlep_AuxArrayDevPtr_Int   = NULL;
    SrcTerms.Dlep_Profile_DataDevPtr   = NULL;
    SrcTerms.Dlep_Profile_RadiusDevPtr = NULL;
+   SrcTerms.LigB_FuncPtr              = NULL;
+   SrcTerms.LigB_AuxArrayDevPtr_Flt   = NULL;
+   SrcTerms.LigB_AuxArrayDevPtr_Int   = NULL;
 #  endif
    SrcTerms.User_FuncPtr              = NULL;
    SrcTerms.User_AuxArrayDevPtr_Flt   = NULL;
@@ -72,7 +77,7 @@ void Src_Init()
 
 
 // initialize all source terms
-// (1) deleptonization
+// (1) deleptonization and lightbulb
 #  if ( MODEL == HYDRO )
    if ( SrcTerms.Deleptonization )
    {
@@ -80,6 +85,13 @@ void Src_Init()
 
 //    check if the source-term function is set properly
       if ( SrcTerms.Dlep_FuncPtr == NULL )   Aux_Error( ERROR_INFO, "SrcTerms.Dlep_FuncPtr == NULL !!\n" );
+   }
+   if ( SrcTerms.LightBulb )
+   {
+      Src_Init_LightBulb();
+
+//    check if the source-term function is set properly
+      if ( SrcTerms.LigB_FuncPtr == NULL )   Aux_Error( ERROR_INFO, "SrcTerms.LigB_FuncPtr == NULL !!\n" );
    }
 #  endif
 

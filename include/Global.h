@@ -256,7 +256,10 @@ extern EoS_GENE_t EoS_General_GPUPtr;
 #endif
 extern EoS_t EoS;
 #if ( EOS == EOS_NUCLEAR )
-extern char NUC_TABLE[MAX_STRING];
+extern char   NUC_TABLE[MAX_STRING];
+extern bool   EOS_POSTBOUNCE;
+extern double EOS_BOUNCETIME;
+
 #endif
 #endif // HYDRO
 
@@ -277,29 +280,31 @@ extern SrcTerms_t SrcTerms;
 #if ( MODEL == HYDRO )
 extern double     Src_Dlep_AuxArray_Flt[SRC_NAUX_DLEP];
 extern int        Src_Dlep_AuxArray_Int[SRC_NAUX_DLEP];
+extern double     Src_LigB_AuxArray_Flt[SRC_NAUX_LIGB];
+extern int        Src_LigB_AuxArray_Int[SRC_NAUX_LIGB];
 #endif
 extern double     Src_User_AuxArray_Flt[SRC_NAUX_USER];
 extern int        Src_User_AuxArray_Int[SRC_NAUX_USER];
 
-# if (EOS == NUCLEAR)
-extern bool   EOS_POSTBOUNCE;
-extern double EOS_BOUNCETIME;
-# endif
 
-//#ifdef DELEPTIONIZATION
+#ifdef DELEPTONIZATION
 extern double DELEP_ENU;
 extern double DELEP_RHO1;
 extern double DELEP_RHO2;
 extern double DELEP_YE1;
 extern double DELEP_YE2;
 extern double DELEP_YEC;
-//#endif
+#endif
 
-//#ifdef NEUTRINO_SCHEME
+
+#ifdef NEUTRINO_SCHEME
+#if ( NEUTRINO_SCHEME == LIGHTBULB )
 extern double LB_LNU;
 extern double LB_TNU;
 extern double LB_HEATFACTOR;
-//#endif
+#endif
+#endif
+
 
 // (2-11) user-defined derived fields
 // =======================================================================================================

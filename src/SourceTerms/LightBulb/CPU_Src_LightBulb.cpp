@@ -10,6 +10,8 @@
 #define SRC_AUX_LB_TNU              5
 #define SRC_AUX_LB_HEATFACTOR       6
 
+#if ( MODEL == HYDRO )
+
 
 // external functions and GPU-related set-up
 #ifdef __CUDACC__
@@ -62,15 +64,12 @@ void Src_PassData2GPU_LightBulb();
 4. The source-term function must be thread-safe and
    not use any global variable
 ********************************************************/
-// declare as static so that other functions cannot invoke it directly and must use the function pointer
-static void Src_LightBulb( real fluid[], const double x, const double y, const double z, const double Time,
-                      const int lv, double AuxArray[], const double dt );
-
-// this function pointer may be overwritten by various test problem initializers
-void (*Src_LightBulb_Ptr)( real fluid[], const double x, const double y, const double z, const double Time,
-                      const int lv, double AuxArray[], const double dt ) = Src_LightBulb;
 
 
+
+// =======================
+// I. Set auxiliary arrays
+// =======================
 
 //-------------------------------------------------------------------------------------------------------
 // Function    :  Src_SetAuxArray_LightBulb
@@ -88,6 +87,9 @@ void (*Src_LightBulb_Ptr)( real fluid[], const double x, const double y, const d
 void Src_SetAuxArray_LightBulb( double AuxArray_Flt[], int AuxArray_Int[] )
 {
 
+#ifdef NEUTRINO_SCHEME
+#if ( NEUTRINO_SCHEME == LIGHTBULB )
+
    AuxArray_Flt[SRC_AUX_ESHIFT            ] = EoS_AuxArray_Flt[NUC_AUX_ESHIFT];
    AuxArray_Flt[SRC_AUX_DENS2CGS          ] = UNIT_D;
    AuxArray_Flt[SRC_AUX_VSQR2CGS          ] = SQR( UNIT_V );
@@ -95,6 +97,9 @@ void Src_SetAuxArray_LightBulb( double AuxArray_Flt[], int AuxArray_Int[] )
    AuxArray_Flt[SRC_AUX_LB_LNU            ] = LB_LNU;
    AuxArray_Flt[SRC_AUX_LB_TNU            ] = LB_TNU;
    AuxArray_Flt[SRC_AUX_LB_HEATFACTOR     ] = LB_HEATFACTOR;
+
+#endif // #if NEUTRINO_SCHEME == LIGHTBULB
+#endif // #ifdef NEUTRINO_SCHEME
 
 
 } // FUNCTION : Src_SetAuxArray_LightBulb
@@ -108,12 +113,12 @@ void Src_SetAuxArray_LightBulb( double AuxArray_Flt[], int AuxArray_Int[] )
 
 //-------------------------------------------------------------------------------------------------------
 // Function    :  Src_LightBulb
-// Description :  User-defined source terms
+// Description :  Light bulb source terms
 //
 // Note        :  1. Invoked by Src_AdvanceDt() using the function pointer "Src_LigB_Ptr"
 //                   --> The function pointer may be reset by various test problem initializers, in which case
 //                       this funtion will become useless
-//                2. Enabled by the runtime option "SRC_USER"
+//                2. Enabled by the runtime option "SRC_LIGHTBULB"
 //
 // Parameter   :  fluid    : Fluid array storing both the input and updated values
 //                           --> Array size = NCOMP_TOTAL (so it includes both active and passive variables)
@@ -126,15 +131,16 @@ void Src_SetAuxArray_LightBulb( double AuxArray_Flt[], int AuxArray_Int[] )
 // Return      :  fluid[]
 //-------------------------------------------------------------------------------------------------------
 GPU_DEVICE_NOINLINE
-void Src_LightBulb( real fluid[], const real B[],
+static void Src_LightBulb( real fluid[], const real B[],
                     const SrcTerms_t *SrcTerms, const real dt, const real dh,
                     const double x, const double y, const double z,
                     const double TimeNew, const double TimeOld,
                     const real MinDens, const real MinPres, const real MinEint,
                     const EoS_t *EoS, const double AuxArray_Flt[], const int AuxArray_Int[] )
-//real fluid[], const double x, const double y, const double z, const double Time,
- //              const int lv, double AuxArray[], const double dt )
 {
+
+#ifdef NEUTRINO_SCHEME
+#if ( NEUTRINO_SCHEME == LIGHTBULB )
 
 // check
 #  ifdef GAMER_DEBUG
@@ -142,23 +148,14 @@ void Src_LightBulb( real fluid[], const real B[],
    if ( AuxArray_Int == NULL )   printf( "ERROR : AuxArray_Int == NULL in %s !!\n", __FUNCTION__ );
 #  endif
 
-// example
-   /*
-   const double CoolRate = 1.23; // set arbitrarily here
-   double Ek, Eint;              // kinetic and internal energies
 
-   Ek    = (real)0.5*( SQR(fluid[MOMX]) + SQR(fluid[MOMY]) + SQR(fluid[MOMZ]) ) / fluid[DENS];
-   Eint  = fluid[ENGY] - Ek;
-   Eint -= CoolRate*dt;
-   fluid[ENGY] = Ek + Eint;
-   */
-   const real EnergyShift   = AuxArray_Flt[SRC_AUX_ESHIFT       ];
-   const real Dens2CGS      = AuxArray_Flt[SRC_AUX_DENS2CGS     ];
-   const real sEint2CGS     = AuxArray_Flt[SRC_AUX_VSQR2CGS     ];
-   const real GAAMA         = AuxArray_Flt[SRC_AUX_GAMMA        ];
-   const real LB_LNU        = AuxArray_Flt[SRC_AUX_LB_LNU       ];
-   const real LB_TNU;       = AuxArray_Flt[SRC_AUX_LB_TNU       ];
-   const real LB_HEATFACTOR = AuxArray_Flt[SRC_AUX_LB_HEATFACTOR];
+   const real EnergyShift     = AuxArray_Flt[SRC_AUX_ESHIFT       ];
+   const real Dens2CGS        = AuxArray_Flt[SRC_AUX_DENS2CGS     ];
+   const real sEint2CGS       = AuxArray_Flt[SRC_AUX_VSQR2CGS     ];
+   const real GAAMA           = AuxArray_Flt[SRC_AUX_GAMMA        ];
+   const double LB_LNU        = AuxArray_Flt[SRC_AUX_LB_LNU       ];
+   const double LB_TNU        = AuxArray_Flt[SRC_AUX_LB_TNU       ];
+   const double LB_HEATFACTOR = AuxArray_Flt[SRC_AUX_LB_HEATFACTOR];
 
    const int  NRho          = EoS->AuxArrayDevPtr_Int[NUC_AUX_NRHO ];
    const int  NTemp         = EoS->AuxArrayDevPtr_Int[NUC_AUX_NTEMP];
@@ -172,7 +169,7 @@ void Src_LightBulb( real fluid[], const real B[],
    const real BoxCenter[3] = { 0.5*amr->BoxSize[0], 0.5*amr->BoxSize[1], 0.5*amr->BoxSize[2] }; 
    const real Gamma_m1     = GAMMA - 1.0;
 
-   if (0) // (!EOS_POSTBOUNCE) 
+   if ( !EOS_POSTBOUNCE ) 
    {
         return;
    }
@@ -253,7 +250,49 @@ void Src_LightBulb( real fluid[], const real B[],
 //#  endif
 //#  endif
 
+#endif // #if NEUTRINO_SCHEME == LIGHTBULB
+#endif // #ifdef NEUTRINO_SCHEME
+
+
 } // FUNCTION : Src_Lightbulb
+
+
+
+// ==================================================
+// III. [Optional] Add the work to be done every time
+//      before calling the major source-term function
+// ==================================================
+
+//-------------------------------------------------------------------------------------------------------
+// Function    :  Src_WorkBeforeMajorFunc_LightBulb
+// Description :  Specify work to be done every time before calling the major source-term function
+//
+// Note        :  1. Invoked by Src_WorkBeforeMajorFunc()
+//                2. Add "#ifndef __CUDACC__" since this routine is only useful on CPU
+//
+// Parameter   :  lv               : Target refinement level
+//                TimeNew          : Target physical time to reach
+//                TimeOld          : Physical time before update
+//                                   --> The major source-term function will update the system from TimeOld to TimeNew
+//                dt               : Time interval to advance solution
+//                                   --> Physical coordinates : TimeNew - TimeOld == dt
+//                                       Comoving coordinates : TimeNew - TimeOld == delta(scale factor) != dt
+//                AuxArray_Flt/Int : Auxiliary arrays
+//                                   --> Can be used and/or modified here
+//                                   --> Must call Src_SetConstMemory_Deleptonization() after modification
+//
+// Return      :  AuxArray_Flt/Int[]
+//-------------------------------------------------------------------------------------------------------
+#ifndef __CUDACC__
+void Src_WorkBeforeMajorFunc_LightBulb( const int lv, const double TimeNew, const double TimeOld, const double dt,
+                                              double AuxArray_Flt[], int AuxArray_Int[] )
+{
+
+// TBF
+
+} // FUNCTION : Src_WorkBeforeMajorFunc_LightBulb
+#endif
+
 
 
 // ================================
@@ -373,8 +412,8 @@ void Src_Init_LightBulb()
    Src_SetFunc_LightBulb( SrcTerms.LigB_FuncPtr );
 
 // set the auxiliary functions
-   Src_WorkBeforeMajorFunc_LigB_Ptr = Src_WorkBeforeMajorFunc_LightBulb;
-   Src_End_LigB_Ptr                 = Src_End_LightBulb;
+//   Src_WorkBeforeMajorFunc_LigB_Ptr = Src_WorkBeforeMajorFunc_LightBulb;
+//   Src_End_LigB_Ptr                 = Src_End_LightBulb;
 
 } // FUNCTION : Src_Init_LightBulb
 
@@ -399,3 +438,6 @@ void Src_End_LightBulb()
 } // FUNCTION : Src_End_LightBulb
 
 #endif // #ifndef __CUDACC__
+
+
+#endif // #if ( MODEL == HYDRO )

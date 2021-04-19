@@ -1,4 +1,3 @@
-//#include "GAMER.h"
 #include "EoS.h"
 #include "CUFLU.h"
 #include "NuclearEoS.h"
@@ -15,7 +14,6 @@
 #define SRC_AUX_DELEP_YEC           8
 
 #if ( MODEL == HYDRO )
-
 
 
 // external functions and GPU-related set-up
@@ -42,7 +40,9 @@ void Src_PassData2GPU_Deleptonization();
 
 #endif
 
-
+GPU_DEVICE static
+real YeOfRhoFunc( const real DENS_CGS, const real DELEP_RHO1, const real DELEP_RHO2, 
+                  const real DELEP_YE1, const real DELEP_YE2, const real DELEP_YEC );
 
 /********************************************************
 1. Deleptonization source term
@@ -64,9 +64,7 @@ void Src_PassData2GPU_Deleptonization();
    not use any global variable
 ********************************************************/
 
-GPU_DEVICE static
-real YeOfRhoFunc( const real DENS_CGS, const real DELEP_RHO1, const real DELEP_RHO2, 
-                  const real DELEP_YE1, const real DELEP_YE2, const real DELEP_YEC );
+
 
 // =======================
 // I. Set auxiliary arrays
@@ -88,6 +86,7 @@ real YeOfRhoFunc( const real DENS_CGS, const real DELEP_RHO1, const real DELEP_R
 void Src_SetAuxArray_Deleptonization( double AuxArray_Flt[], int AuxArray_Int[] )
 {
 
+#ifdef DELEPTONIZATION
    AuxArray_Flt[SRC_AUX_ESHIFT            ] = EoS_AuxArray_Flt[NUC_AUX_ESHIFT];
    AuxArray_Flt[SRC_AUX_DENS2CGS          ] = UNIT_D;
    AuxArray_Flt[SRC_AUX_VSQR2CGS          ] = SQR( UNIT_V );
@@ -97,7 +96,7 @@ void Src_SetAuxArray_Deleptonization( double AuxArray_Flt[], int AuxArray_Int[] 
    AuxArray_Flt[SRC_AUX_DELEP_YE1         ] = DELEP_YE1;
    AuxArray_Flt[SRC_AUX_DELEP_YE2         ] = DELEP_YE2;
    AuxArray_Flt[SRC_AUX_DELEP_YEC         ] = DELEP_YEC;
-   
+#endif
 
 } // FUNCTION : Src_SetAuxArray_Deleptonization
 #endif // #ifndef __CUDACC__
@@ -147,7 +146,7 @@ static void Src_Deleptonization( real fluid[], const real B[],
    if ( AuxArray_Int == NULL )   printf( "ERROR : AuxArray_Int == NULL in %s !!\n", __FUNCTION__ );
 #  endif
 
-
+#ifdef DELEPTONIZATION
    const real EnergyShift  = AuxArray_Flt[SRC_AUX_ESHIFT    ];
    const real Dens2CGS     = AuxArray_Flt[SRC_AUX_DENS2CGS  ];
    const real sEint2CGS    = AuxArray_Flt[SRC_AUX_VSQR2CGS  ];
@@ -260,6 +259,8 @@ static void Src_Deleptonization( real fluid[], const real B[],
 #  endif // GAMER_DEBUG
 
     } // if ( Del_Ye < 0.0 )
+
+#  endif // # ifdef DELEPTONIZATION
 
 #  endif // # if ( EOS == EOS_NUCLEAR )
 
@@ -557,5 +558,6 @@ real YeOfRhoFunc( const real DENS_CGS, const real DELEP_RHO1, const real DELEP_R
    return Ye;
 
 }
+
 
 #endif // #if ( MODEL == HYDRO )

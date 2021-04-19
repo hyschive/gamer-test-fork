@@ -6,6 +6,8 @@
 #if ( MODEL == HYDRO )
 void Src_WorkBeforeMajorFunc_Deleptonization( const int lv, const double TimeNew, const double TimeOld, const double dt,
                                               double AuxArray_Flt[], int AuxArray_Int[] );
+void Src_WorkBeforeMajorFunc_LightBulb( const int lv, const double TimeNew, const double TimeOld, const double dt,
+                                              double AuxArray_Flt[], int AuxArray_Int[] );                                              
 #endif
 
 // this function pointer can be set by a test problem initializer for a user-specified source term
@@ -42,6 +44,9 @@ void Src_WorkBeforeMajorFunc( const int lv, const double TimeNew, const double T
    if ( SrcTerms.Deleptonization )
       Src_WorkBeforeMajorFunc_Deleptonization( lv, TimeNew, TimeOld, dt,
                                                Src_Dlep_AuxArray_Flt, Src_Dlep_AuxArray_Int );
+   if ( SrcTerms.LightBulb )
+      Src_WorkBeforeMajorFunc_LightBulb( lv, TimeNew, TimeOld, dt,
+                                         Src_Dlep_AuxArray_Flt, Src_Dlep_AuxArray_Int );
 #  endif
 
 // (2) user-specified source term

@@ -62,20 +62,20 @@ struct SrcTerms_t
    real   Unit_B;
 #  endif
 
-// deleptonization
 #  if ( MODEL == HYDRO )
+// deleptonization
    SrcFunc_t Dlep_FuncPtr;
    double   *Dlep_AuxArrayDevPtr_Flt;
    int      *Dlep_AuxArrayDevPtr_Int;
    real    (*Dlep_Profile_DataDevPtr)[SRC_DLEP_PROF_NBINMAX];
    real     *Dlep_Profile_RadiusDevPtr;
    int       Dlep_Profile_NBin;
-#  endif
-
 // light bulb
    SrcFunc_t LigB_FuncPtr;
    double   *LigB_AuxArrayDevPtr_Flt;
    int      *LigB_AuxArrayDevPtr_Int;
+#  endif
+
 
 // user-specified source term
    SrcFunc_t User_FuncPtr;

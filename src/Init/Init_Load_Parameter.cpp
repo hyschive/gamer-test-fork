@@ -177,6 +177,7 @@ void Init_Load_Parameter()
 
 // source terms
    ReadPara->Add( "SRC_DELEPTONIZATION",        &SrcTerms.Deleptonization,        false,           Useless_bool,  Useless_bool   );
+   ReadPara->Add( "SRC_LIGHTBULB",              &SrcTerms.LightBulb,              false,           Useless_bool,  Useless_bool   );
    ReadPara->Add( "SRC_USER",                   &SrcTerms.User,                   false,           Useless_bool,  Useless_bool   );
    ReadPara->Add( "SRC_GPU_NPGROUP",            &SRC_GPU_NPGROUP,                -1,               NoMin_int,     NoMax_int      );
 
@@ -216,12 +217,13 @@ void Init_Load_Parameter()
 
 
 // supernova
-#  if (EOS == NUCLEAR)
+#  if ( MODEL == HYDRO )
+#  if ( EOS == EOS_NUCLEAR )
    ReadPara->Add( "EOS_POSTBOUNCE",            &EOS_POSTBOUNCE,                false,         Useless_bool,     Useless_bool      );
    ReadPara->Add( "EOS_BOUNCETIME",            &EOS_BOUNCETIME,                0.0,           0.0,              NoMax_double      );
 #  endif
 
-#  ifdef DELEPTIONIZATION
+#  ifdef DELEPTONIZATION
    ReadPara->Add( "DELEP_ENU",                      &DELEP_ENU,                     10.0,       0.0,           NoMax_double   );
    ReadPara->Add( "DELEP_RHO1",                     &DELEP_RHO1,                    4.e8,       0.0,           NoMax_double   );
    ReadPara->Add( "DELEP_RHO2",                     &DELEP_RHO2,                    7.e12,      0.0,           NoMax_double   );
@@ -231,10 +233,13 @@ void Init_Load_Parameter()
 #  endif
 
 #  ifdef NEUTRINO_SCHEME
+#  if ( NEUTRINO_SCHEME == LIGHTBULB )
    ReadPara->Add( "LB_LNU",                      &LB_LNU,                     2.2e52,           0.0,           NoMax_double   );
    ReadPara->Add( "LB_TNU",                      &LB_TNU,                     4.0,              0.0,           NoMax_double   );
    ReadPara->Add( "LB_HEATFACTOR",               &LB_HEATFACTOR,              1.0,              0.0,           NoMax_double   );
 #  endif
+#  endif
+#  endif // #if ( MODEL == HYDRO )
 
 
 // fluid solvers in HYDRO
