@@ -219,8 +219,8 @@ void Init_Load_Parameter()
 // supernova
 #  if ( MODEL == HYDRO )
 #  if ( EOS == EOS_NUCLEAR )
-   ReadPara->Add( "EOS_POSTBOUNCE",            &EOS_POSTBOUNCE,                false,         Useless_bool,     Useless_bool      );
-   ReadPara->Add( "EOS_BOUNCETIME",            &EOS_BOUNCETIME,                0.0,           0.0,              NoMax_double      );
+   ReadPara->Add( "EOS_POSTBOUNCE",            &EoS.EOS_POSTBOUNCE,            false,         Useless_bool,       Useless_bool   );
+   ReadPara->Add( "EOS_BOUNCETIME",            &EoS.EOS_BOUNCETIME,            0.0,           0.0,                NoMax_double   );
 #  endif
 
 #  ifdef DELEPTONIZATION
