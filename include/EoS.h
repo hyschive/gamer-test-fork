@@ -29,6 +29,10 @@ struct EoS_t
    double *AuxArrayDevPtr_Flt;
    int    *AuxArrayDevPtr_Int;
 
+// postbounce and bounce time
+   bool   EOS_POSTBOUNCE;
+   double EOS_BOUNCETIME;
+
 // function pointers
    EoS_DE2P_t DensEint2Pres_FuncPtr;
    EoS_DP2E_t DensPres2Eint_FuncPtr;
