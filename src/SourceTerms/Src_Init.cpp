@@ -32,8 +32,6 @@ void Src_Init()
 
 #ifdef DELEPTONIZATION
    SrcTerms.Deleptonization = true;
-#elif
-   SrcTerms.Deleptonization = false;
 #endif
 
 // check if at least one source term is activated
