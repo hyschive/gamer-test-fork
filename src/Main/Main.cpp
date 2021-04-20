@@ -245,8 +245,6 @@ EoS_t EoS;
 // d. others
 #if ( EOS == EOS_NUCLEAR )
 char   NUC_TABLE[MAX_STRING];
-bool   EOS_POSTBOUNCE;
-double EOS_BOUNCETIME;
 #endif
 #endif // HYDRO
 
