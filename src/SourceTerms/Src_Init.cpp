@@ -36,7 +36,7 @@ void Src_Init()
    if (
 #       if ( MODEL == HYDRO )
         SrcTerms.Deleptonization  ||
-        SrcTerms.LightBulb        ||
+        SrcTerms.Neutrino_Scheme  ||
 #       endif
         SrcTerms.User
       )
@@ -86,7 +86,7 @@ void Src_Init()
 //    check if the source-term function is set properly
       if ( SrcTerms.Dlep_FuncPtr == NULL )   Aux_Error( ERROR_INFO, "SrcTerms.Dlep_FuncPtr == NULL !!\n" );
    }
-   if ( SrcTerms.LightBulb )
+   if ( SrcTerms.Neutrino_Scheme == LIGHTBULB )
    {
       Src_Init_LightBulb();
 

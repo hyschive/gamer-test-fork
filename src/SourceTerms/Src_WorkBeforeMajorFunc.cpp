@@ -44,7 +44,7 @@ void Src_WorkBeforeMajorFunc( const int lv, const double TimeNew, const double T
    if ( SrcTerms.Deleptonization )
       Src_WorkBeforeMajorFunc_Deleptonization( lv, TimeNew, TimeOld, dt,
                                                Src_Dlep_AuxArray_Flt, Src_Dlep_AuxArray_Int );
-   if ( SrcTerms.LightBulb )
+   if ( SrcTerms.Neutrino_Scheme == LIGHTBULB )
       Src_WorkBeforeMajorFunc_LightBulb( lv, TimeNew, TimeOld, dt,
                                          Src_Dlep_AuxArray_Flt, Src_Dlep_AuxArray_Int );
 #  endif

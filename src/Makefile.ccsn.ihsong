@@ -171,7 +171,7 @@ SIMU_OPTION += -DMAX_PATCH=1000000
 
 # GPU acceleration
 # --> must set GPU_ARCH as well
-#SIMU_OPTION += -DGPU
+SIMU_OPTION += -DGPU
 
 # GPU architecture: FERMI/KEPLER/MAXWELL/PASCAL/VOLTA/TURING
 SIMU_OPTION += -DGPU_ARCH=TURING
@@ -892,7 +892,7 @@ else ifeq "$(filter -DGPU_ARCH=TURING, $(SIMU_OPTION))" "-DGPU_ARCH=TURING"
    ifeq "$(filter -DFLOAT8, $(SIMU_OPTION))" "-DFLOAT8"
      NVCCFLAG_FLU += --maxrregcount=256
    else
-     NVCCFLAG_FLU += --maxrregcount=224
+     NVCCFLAG_FLU += --maxrregcount=192
    endif
 endif
 
