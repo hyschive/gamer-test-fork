@@ -177,7 +177,7 @@ void Init_Load_Parameter()
 
 // source terms
    ReadPara->Add( "SRC_DELEPTONIZATION",        &SrcTerms.Deleptonization,        false,           Useless_bool,  Useless_bool   );
-   ReadPara->Add( "SRC_LIGHTBULB",              &SrcTerms.LightBulb,              false,           Useless_bool,  Useless_bool   );
+   ReadPara->Add( "NEUTRINO_SCHEME",            &SrcTerms.Neutrino_Scheme,        0,               0,             3              );
    ReadPara->Add( "SRC_USER",                   &SrcTerms.User,                   false,           Useless_bool,  Useless_bool   );
    ReadPara->Add( "SRC_GPU_NPGROUP",            &SRC_GPU_NPGROUP,                -1,               NoMin_int,     NoMax_int      );
 
