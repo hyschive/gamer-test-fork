@@ -308,7 +308,7 @@
 #  define FLUX_YE          ( FLUX_NEXT_IDX2  )
 #  define FLUX_NEXT_IDX3   ( FLUX_YE - 1     )
 #  define FLUX_ENTR        ( FLUX_NEXT_IDX3  )
-#  define FLUX_NEXT_IDX4   ( ENTR - 1        )
+#  define FLUX_NEXT_IDX4   ( FLUX_ENTR - 1   )
 # else
 #  define FLUX_NEXT_IDX3   ( FLUX_NEXT_IDX2  )
 # endif
