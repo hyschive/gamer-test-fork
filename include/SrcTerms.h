@@ -46,8 +46,8 @@ struct SrcTerms_t
 
    bool   Any;
    bool   Deleptonization;
-   bool   LightBulb;
    bool   User;
+   int    Neutrino_Scheme;
 
    double BoxCenter[3];
 
