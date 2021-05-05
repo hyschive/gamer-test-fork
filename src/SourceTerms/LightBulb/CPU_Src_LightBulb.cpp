@@ -174,7 +174,7 @@ static void Src_LightBulb( real fluid[], const real B[],
    const double  BoxCenter[3] = { SrcTerms->BoxCenter[0], SrcTerms->BoxCenter[1], SrcTerms->BoxCenter[2] }; 
    //const real Gamma_m1     = GAMMA - 1.0;
 
-   if ( !EoS->EOS_POSTBOUNCE ) 
+   if ( EoS->EOS_POSTBOUNCE ) 
    {
         return;
    }

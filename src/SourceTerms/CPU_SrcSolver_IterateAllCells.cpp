@@ -114,7 +114,14 @@ void CPU_SrcSolver_IterateAllCells(
                                    SrcTerms.Dlep_AuxArrayDevPtr_Flt, SrcTerms.Dlep_AuxArrayDevPtr_Int );
 #        endif
 
-//       (2) user-defined
+//       (2) lightbulb
+#        if ( MODEL == HYDRO )
+         if ( SrcTerms.Neutrino_Scheme == LIGHTBULB )
+            SrcTerms.LigB_FuncPtr( fluid, B, &SrcTerms, dt, dh, x, y, z, TimeNew, TimeOld, MinDens, MinPres, MinEint, &EoS,
+                                   SrcTerms.Dlep_AuxArrayDevPtr_Flt, SrcTerms.Dlep_AuxArrayDevPtr_Int );
+#        endif
+
+//       (3) user-defined
          if ( SrcTerms.User )
             SrcTerms.User_FuncPtr( fluid, B, &SrcTerms, dt, dh, x, y, z, TimeNew, TimeOld, MinDens, MinPres, MinEint, &EoS,
                                    SrcTerms.User_AuxArrayDevPtr_Flt, SrcTerms.User_AuxArrayDevPtr_Int );
