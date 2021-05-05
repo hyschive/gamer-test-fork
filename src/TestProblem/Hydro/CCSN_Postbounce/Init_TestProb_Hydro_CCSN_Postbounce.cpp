@@ -240,7 +240,11 @@ void SetGridIC( real fluid[], const double x, const double y, const double z, co
       real sEint_CGS = NULL_REAL;
       real Useless   = NULL_REAL;
       int  Err       = NULL_INT;
+#     ifdef FLOAT8
       const real Tolerance = 1.0e-10;
+#     else
+      const real Tolerance = 1.0e-6;
+#     endif
 
       nuc_eos_C_short( Dens_CGS, &Temp_MeV, Ye, &sEint_CGS,&Useless, &Useless, &Useless, &Useless,
                        EnergyShift, NRho, NTemp, NYe, NMode,
