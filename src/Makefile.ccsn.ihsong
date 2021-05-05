@@ -55,7 +55,7 @@ ifeq "$(filter -DMODEL=HYDRO, $(SIMU_OPTION))" "-DMODEL=HYDRO"
 # hydrodynamic scheme: RTVD/MHM/MHM_RP/CTU
 # --> must be set when MODEL=HYDRO
 # --> MHD only supports MHM_RP and CTU
-SIMU_OPTION += -DFLU_SCHEME=MHM_RP
+SIMU_OPTION += -DFLU_SCHEME=MHM
 
 # scheme of spatial data reconstruction: PLM/PPM (piecewise-linear/piecewise-parabolic)
 # --> useless for RTVD
@@ -163,7 +163,7 @@ endif # PARTICLE
 # ------------------------------------------------------------------------------------
 # maximum number of AMR levels including the root level (level id = 0 ... NLEVEL-1)
 # --> must be set in any cases
-SIMU_OPTION += -DNLEVEL=8
+SIMU_OPTION += -DNLEVEL=10
 
 # maximum number of patches on each AMR level
 # --> must be set in any cases
