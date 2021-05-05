@@ -122,7 +122,7 @@ void nuc_eos_C_short( const real xrho, real *xtemp, const real xye,
 
 // find temperature
    real lt  = LOG10( *xtemp );
-   real lt0 = LOG10( 63.0 );
+   real lt0 = LOG10(63.0);
 
    switch ( keymode )
    {
