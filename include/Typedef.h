@@ -53,7 +53,7 @@ const TestProbID_t
 
    TESTPROB_HYDRO_GREP_MIGRATIONTEST           =   20,
    TESTPROB_HYDRO_CCSN_POSTBOUNCE              =   21,
-   TESTPROB_HYDRO_CORECOLLAPSE                 =   22,
+   TESTPROB_HYDRO_CORE_COLLAPSE                =   22,
 
 
    TESTPROB_ELBDM_EXTPOT                       = 1000;
