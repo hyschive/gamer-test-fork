@@ -29,7 +29,7 @@ struct EoS_t
    double *AuxArrayDevPtr_Flt;
    int    *AuxArrayDevPtr_Int;
 
-// postbounce and bounce time
+// EoS postbounce and bounce time
    bool   EOS_POSTBOUNCE;
    double EOS_BOUNCETIME;
 
