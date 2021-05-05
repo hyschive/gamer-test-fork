@@ -348,7 +348,7 @@
 #     ifdef FLOAT8
 #     define FLU_BLOCK_SIZE_X       256
 #     else
-#     define FLU_BLOCK_SIZE_X       512      // not optimized yet
+#     define FLU_BLOCK_SIZE_X       256      // not optimized yet
 #     endif
 #  else
 #     define FLU_BLOCK_SIZE_X       NULL_INT
@@ -437,7 +437,7 @@
 
 // 4. source-term solver
 //=========================================================================================
-#     define SRC_BLOCK_SIZE         512
+#     define SRC_BLOCK_SIZE         256
 
 
 
