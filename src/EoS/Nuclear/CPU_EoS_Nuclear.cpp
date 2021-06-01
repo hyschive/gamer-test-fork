@@ -233,9 +233,9 @@ static real EoS_DensEint2Pres_Nuclear( const real Dens_Code, const real Eint_Cod
       printf( "ERROR : EoS overflow (Dens_CGS %13.7e, Dens_Code %13.7e, Dens2CGS %13.7e) in %s() !!\n",
               Dens_CGS, Dens_Code, Dens2CGS, __FUNCTION__ );
 
-   if ( Nuc_Overflow(sEint_CGS) )
-      printf( "ERROR : EoS overflow (sEint_CGS %13.7e, Eint_Code %13.7e, Dens_Code %13.7e, sEint2CGS %13.7e) in %s() !!\n",
-              sEint_CGS, Eint_Code, Dens_Code, sEint2CGS, __FUNCTION__ );
+   //if ( Nuc_Overflow(sEint_CGS) )
+   //   printf( "ERROR : EoS overflow (sEint_CGS %13.7e, Eint_Code %13.7e, Dens_Code %13.7e, sEint2CGS %13.7e) in %s() !!\n",
+   //           sEint_CGS, Eint_Code, Dens_Code, sEint2CGS, __FUNCTION__ );
 
    if ( Ye < (real)Table[NUC_TAB_YE][0]  ||  Ye > (real)Table[NUC_TAB_YE][NYe-1] )
       printf( "ERROR : invalid Ye = %13.7e (min = %13.7e, max = %13.7e) in %s() !!\n",

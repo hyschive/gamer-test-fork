@@ -6,6 +6,7 @@
 
 #ifdef __CUDACC__
 
+#include "cubinterp_some.cu"
 #include "linterp_some.cu"
 #include "findtemp.cu"
 #include "findtemp2.cu"
@@ -122,7 +123,7 @@ void nuc_eos_C_short( const real xrho, real *xtemp, const real xye,
 
 // find temperature
    real lt  = LOG10( *xtemp );
-   real lt0 = LOG10(63.0);
+   real lt0 = LOG10( 63.0 ); //lt;
 
    switch ( keymode )
    {
@@ -130,18 +131,18 @@ void nuc_eos_C_short( const real xrho, real *xtemp, const real xye,
       {
          const real leps = LOG10( MAX( (*xenr + energy_shift), 1.0 ) );
          
-         //if ( leps > logeps_mode[nmode-1] )        {  *keyerr = 107; return;  }
-         //if ( leps < logeps_mode[      0] )        {  *keyerr = 108; return;  }
-         //
-         //find_temp( lr, leps, xye, &lt, alltables_mode, nrho, nmode, nye, ntemp,
-         //           logrho, logeps_mode, yes, logtemp, keymode, keyerr );
-         //
-         //if ( *keyerr != 0 ) 
-         //{
+         if ( leps > logeps_mode[nmode-1] )        {  *keyerr = 107; return;  }
+         if ( leps < logeps_mode[      0] )        {  *keyerr = 108; return;  }
+         
+         find_temp( lr, leps, xye, &lt, alltables_mode, nrho, nmode, nye, ntemp,
+                    logrho, logeps_mode, yes, logtemp, keymode, keyerr );
+         
+         if ( *keyerr != 0 ) 
+         {
             find_temp2( lr, lt0, xye, leps, &lt, nrho, ntemp, nye, alltables,
                         logrho, logtemp, yes, keymode, keyerr, rfeps );
             if ( *keyerr != 0 ) return;
-         //}
+         }
       }
       break;
 
@@ -156,18 +157,18 @@ void nuc_eos_C_short( const real xrho, real *xtemp, const real xye,
       {
          const real entr = *xent;
          
-         // if ( entr > entr_mode[nmode-1] )    {  *keyerr = 109; return;  }
-         // if ( entr < entr_mode[      0] )    {  *keyerr = 110; return;  }
-         // 
-         // find_temp( lr, entr, xye, &lt, alltables_mode, nrho, nmode, nye, ntemp,
-                  //   logrho, entr_mode, yes, logtemp, keymode, keyerr );
-         // 
-         // if ( *keyerr != 0 ) 
-         // {
+         if ( entr > entr_mode[nmode-1] )    {  *keyerr = 109; return;  }
+         if ( entr < entr_mode[      0] )    {  *keyerr = 110; return;  }
+          
+         find_temp( lr, entr, xye, &lt, alltables_mode, nrho, nmode, nye, ntemp,
+                    logrho, entr_mode, yes, logtemp, keymode, keyerr );
+          
+         if ( *keyerr != 0 ) 
+         {
             find_temp2( lr, lt0, xye, entr, &lt, nrho, ntemp, nye, alltables,
                         logrho, logtemp, yes, keymode, keyerr, rfeps );
             if ( *keyerr != 0 ) return;
-         //}
+         }
       }
       break;
       
@@ -175,18 +176,18 @@ void nuc_eos_C_short( const real xrho, real *xtemp, const real xye,
       {
          const real lprs = LOG10( *xprs );
          
-         // if ( lprs > logprss_mode[nmode-1] ) {  *keyerr = 111; return;  }
-         // if ( lprs < logprss_mode[      0] ) {  *keyerr = 112; return;  }
-         // 
-         // find_temp( lr, lprs, xye, &lt, alltables_mode, nrho, nmode, nye, ntemp,
-         //            logrho, logprss_mode, yes, logtemp, keymode, keyerr );
-         // 
-         // if ( *keyerr != 0 ) 
-         // {
+         if ( lprs > logprss_mode[nmode-1] ) {  *keyerr = 111; return;  }
+         if ( lprs < logprss_mode[      0] ) {  *keyerr = 112; return;  }
+         
+         find_temp( lr, lprs, xye, &lt, alltables_mode, nrho, nmode, nye, ntemp,
+                    logrho, logprss_mode, yes, logtemp, keymode, keyerr );
+         
+         if ( *keyerr != 0 ) 
+         {
             find_temp2( lr, lt0, xye, lprs, &lt, nrho, ntemp, nye, alltables,
                         logrho, logtemp, yes, keymode, keyerr, rfeps );
             if ( *keyerr != 0 ) return;
-         //}
+         }
       }
       break;
    } // switch ( keymode )
@@ -195,12 +196,12 @@ void nuc_eos_C_short( const real xrho, real *xtemp, const real xye,
    real res[5]; // result array
 
 // linear interolation for other variables
-   //nuc_eos_C_linterp_some(lr, lt, xye, res, alltables,
-   //                       nrho, ntemp, nye, 5, logrho, logtemp, yes);
+   nuc_eos_C_linterp_some(lr, lt, xye, res, alltables,
+                          nrho, ntemp, nye, 5, logrho, logtemp, yes);
    
 // cubic interpolation for other variables
-   nuc_eos_C_linterp_some( lr, lt, xye, res, alltables,
-                             nrho, ntemp, nye, 5, logrho, logtemp, yes );
+   //nuc_eos_C_cubinterp_some( lr, lt, xye, res, alltables,
+   //                          nrho, ntemp, nye, 5, logrho, logtemp, yes );
    
 
 // assign results
