@@ -216,7 +216,8 @@ static real EoS_DensEint2Pres_Nuclear( const real Dens_Code, const real Eint_Cod
    const int  NTemp       = AuxArray_Int[NUC_AUX_NTEMP    ];
    const int  NYe         = AuxArray_Int[NUC_AUX_NYE      ];
    const int  NRho_Mode   = AuxArray_Int[NUC_AUX_NRHO_MODE];
-   const int  NMode       = AuxArray_Int[NUC_AUX_NYE_MODE ];
+   const int  NMode       = AuxArray_Int[NUC_AUX_NMODE    ];
+   const int  NYe_Mode    = AuxArray_Int[NUC_AUX_NYE_MODE ];
 
    int  Mode      = NUC_MODE_ENGY;
    real Dens_CGS  = Dens_Code * Dens2CGS;
@@ -359,7 +360,8 @@ static real EoS_DensPres2Eint_Nuclear( const real Dens_Code, const real Pres_Cod
    const int  NTemp       = AuxArray_Int[NUC_AUX_NTEMP    ];
    const int  NYe         = AuxArray_Int[NUC_AUX_NYE      ];
    const int  NRho_Mode   = AuxArray_Int[NUC_AUX_NRHO_MODE];
-   const int  NMode       = AuxArray_Int[NUC_AUX_NYE_MODE ];
+   const int  NMode       = AuxArray_Int[NUC_AUX_NMODE    ];
+   const int  NYe_Mode    = AuxArray_Int[NUC_AUX_NYE_MODE ];
 
    int  Mode      = NUC_MODE_PRES;
    real Dens_CGS  = Dens_Code * Dens2CGS;
@@ -480,7 +482,8 @@ static real EoS_DensPres2CSqr_Nuclear( const real Dens_Code, const real Pres_Cod
    const int  NTemp       = AuxArray_Int[NUC_AUX_NTEMP    ];
    const int  NYe         = AuxArray_Int[NUC_AUX_NYE      ];
    const int  NRho_Mode   = AuxArray_Int[NUC_AUX_NRHO_MODE];
-   const int  NMode       = AuxArray_Int[NUC_AUX_NYE_MODE ];
+   const int  NMode       = AuxArray_Int[NUC_AUX_NMODE    ];
+   const int  NYe_Mode    = AuxArray_Int[NUC_AUX_NYE_MODE ];
 
    int  Mode     = NUC_MODE_PRES;
    real Dens_CGS = Dens_Code * Dens2CGS;
@@ -680,7 +683,8 @@ static void EoS_General_Nuclear( const int Mode, real Out[], const real In[], co
    const int  NTemp       = AuxArray_Int[NUC_AUX_NTEMP    ];
    const int  NYe         = AuxArray_Int[NUC_AUX_NYE      ];
    const int  NRho_Mode   = AuxArray_Int[NUC_AUX_NRHO_MODE];
-   const int  NMode       = AuxArray_Int[NUC_AUX_NYE_MODE ];
+   const int  NMode       = AuxArray_Int[NUC_AUX_NMODE    ];
+   const int  NYe_Mode    = AuxArray_Int[NUC_AUX_NYE_MODE ];
 
 
    switch ( Mode )
