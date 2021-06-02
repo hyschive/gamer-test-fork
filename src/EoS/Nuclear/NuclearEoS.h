@@ -7,7 +7,7 @@
 
 
 #define NUC_TABLE_NVAR       16     // number of variables in the EoS table lookup
-#define NUC_TABLE_NPTR        8     // number of table pointers to be sent to GPU
+#define NUC_TABLE_NPTR       10     // number of table pointers to be sent to GPU
 
 
 // auxiliary array indices
@@ -23,7 +23,9 @@
 #define NUC_AUX_NRHO          0     // AuxArray_Int: nrho
 #define NUC_AUX_NTEMP         1     // AuxArray_Int: ntemp
 #define NUC_AUX_NYE           2     // AuxArray_Int: nye
-#define NUC_AUX_NMODE         3     // AuxArray_Int: nmode
+#define NUC_AUX_NRHO_MODE     3     // AuxArray_Int: nrho_mode
+#define NUC_AUX_NMODE         4     // AuxArray_Int: nmode
+#define NUC_AUX_NYE_MODE      5     // AuxArray_Int: nye_mode
 
 
 // table indices
@@ -32,9 +34,11 @@
 #define NUC_TAB_RHO           2     // logrho
 #define NUC_TAB_TEMP          3     // logtemp
 #define NUC_TAB_YE            4     // yes
-#define NUC_TAB_ENGY_MODE     5     // logenergy_mode
-#define NUC_TAB_ENTR_MODE     6     // entr_mode
-#define NUC_TAB_PRES_MODE     7     // logprss_mode
+#define NUC_TAB_RHO_MODE      5     // logrho_mode 
+#define NUC_TAB_ENGY_MODE     6     // logenergy_mode
+#define NUC_TAB_ENTR_MODE     7     // entr_mode
+#define NUC_TAB_PRES_MODE     8     // logprss_mode
+#define NUC_TAB_YE_MODE       9     // yes_mode
 
 
 // EoS modes
