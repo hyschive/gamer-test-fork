@@ -116,7 +116,7 @@ void nuc_eos_C_ReadTable( char *nuceos_table_name )
    READ_EOS_HDF5( "pointstemp",     &g_ntemp,     H5T_NATIVE_INT, H5S_ALL );
    READ_EOS_HDF5( "pointsye",       &g_nye,       H5T_NATIVE_INT, H5S_ALL );
    READ_EOS_HDF5( "pointsrho_mode", &g_nrho_mode, H5T_NATIVE_INT, H5S_ALL );
-   READ_EOS_HDF5( "points_mode",    &g_mode,      H5T_NATIVE_INT, H5S_ALL );
+   READ_EOS_HDF5( "points_mode",    &g_nmode,     H5T_NATIVE_INT, H5S_ALL );
    READ_EOS_HDF5( "pointsye_mode",  &g_nye_mode,  H5T_NATIVE_INT, H5S_ALL );
  
 
