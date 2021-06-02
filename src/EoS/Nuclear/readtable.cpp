@@ -127,7 +127,7 @@ void nuc_eos_C_ReadTable( char *nuceos_table_name )
    if (  ! ( alltables_temp      = (real*)malloc(g_nrho*g_ntemp*g_nye*NUC_TABLE_NVAR*sizeof(real)) )  )
       Aux_Error( ERROR_INFO, "cannot allocate memory for EOS table !!\n" );
 
-   if (  ! ( alltables_mode_temp = (real*)malloc(g_nrho*g_nmode*g_nye*3             *sizeof(real)) )  )
+   if (  ! ( alltables_mode_temp = (real*)malloc(g_nrho_mode*g_nmode*g_nye_mode*3   *sizeof(real)) )  )
       Aux_Error( ERROR_INFO, "cannot allocate memory for EOS table !!\n" );
 
    if (  ! ( g_alltables         = (real*)malloc(g_nrho*g_ntemp*g_nye*NUC_TABLE_NVAR*sizeof(real)) )  )
@@ -206,10 +206,13 @@ void nuc_eos_C_ReadTable( char *nuceos_table_name )
    READ_EOS_HDF5( "logrho",         g_logrho,        H5T_GAMER_REAL,    H5S_ALL );
    READ_EOS_HDF5( "logtemp",        g_logtemp,       H5T_GAMER_REAL,    H5S_ALL );
    READ_EOS_HDF5( "ye",             g_yes,           H5T_GAMER_REAL,    H5S_ALL );
+   READ_EOS_HDF5( "logrho_mode",    g_logrho_mode,   H5T_GAMER_REAL,    H5S_ALL );
    READ_EOS_HDF5( "logenergy_mode", g_logeps_mode,   H5T_GAMER_REAL,    H5S_ALL );
    READ_EOS_HDF5( "entropy_mode",   g_entr_mode,     H5T_GAMER_REAL,    H5S_ALL );
    READ_EOS_HDF5( "logpress_mode",  g_logprss_mode,  H5T_GAMER_REAL,    H5S_ALL );
+   READ_EOS_HDF5( "ye_mode",        g_yes_mode,      H5T_GAMER_REAL,    H5S_ALL );
    READ_EOS_HDF5( "energy_shift",  &g_energy_shift,  H5T_NATIVE_DOUBLE, H5S_ALL );
+   
 
    HDF5_ERROR(  H5Sclose( mem3      )  );
    HDF5_ERROR(  H5Sclose( mem3_mode )  );
@@ -251,11 +254,11 @@ void nuc_eos_C_ReadTable( char *nuceos_table_name )
    h_EoS_Table[NUC_TAB_RHO      ] = g_logrho;
    h_EoS_Table[NUC_TAB_TEMP     ] = g_logtemp;
    h_EoS_Table[NUC_TAB_YE       ] = g_yes;
-   h_EoS_Table[NUC_TAB_RHO      ] = g_logrho_mode;
+   h_EoS_Table[NUC_TAB_RHO_MODE ] = g_logrho_mode;
    h_EoS_Table[NUC_TAB_ENGY_MODE] = g_logeps_mode;
    h_EoS_Table[NUC_TAB_ENTR_MODE] = g_entr_mode;
    h_EoS_Table[NUC_TAB_PRES_MODE] = g_logprss_mode;
-   h_EoS_Table[NUC_TAB_YE       ] = g_yes_mode;
+   h_EoS_Table[NUC_TAB_YE_MODE  ] = g_yes_mode;
 
 
 
