@@ -133,7 +133,7 @@ void nuc_eos_C_ReadTable( char *nuceos_table_name )
    if (  ! ( g_alltables         = (real*)malloc(g_nrho*g_ntemp*g_nye*NUC_TABLE_NVAR*sizeof(real)) )  )
       Aux_Error( ERROR_INFO, "cannot allocate memory for EOS table !!\n");
 
-   if (  ! ( g_alltables_mode    = (real*)malloc(g_nrho*g_nmode*g_nye*3             *sizeof(real)) )  )
+   if (  ! ( g_alltables_mode    = (real*)malloc(g_nrho_mode*g_nmode*g_nye_mode*3   *sizeof(real)) )  )
       Aux_Error( ERROR_INFO, "cannot allocate memory for EOS table !!\n");
 
    if (  ! ( g_logrho            = (real*)malloc(g_nrho                             *sizeof(real)) )  )
@@ -166,7 +166,7 @@ void nuc_eos_C_ReadTable( char *nuceos_table_name )
    hsize_t var3[2]            = { 1, g_nrho*g_ntemp*g_nye };
    hid_t   mem3               = H5Screate_simple( 2, table_dims, NULL );
 
-   hsize_t table_dims_mode[2] = { 3, g_nrho*g_nmode*g_nye };
+   hsize_t table_dims_mode[2] = { 3, g_nrho_mode*g_nmode*g_nye_mode };
    hsize_t var3_mode[2]       = { 1, g_nrho_mode*g_nmode*g_nye_mode };
    hid_t   mem3_mode          = H5Screate_simple( 2, table_dims_mode, NULL );
 
@@ -251,9 +251,12 @@ void nuc_eos_C_ReadTable( char *nuceos_table_name )
    h_EoS_Table[NUC_TAB_RHO      ] = g_logrho;
    h_EoS_Table[NUC_TAB_TEMP     ] = g_logtemp;
    h_EoS_Table[NUC_TAB_YE       ] = g_yes;
+   h_EoS_Table[NUC_TAB_RHO      ] = g_logrho_mode;
    h_EoS_Table[NUC_TAB_ENGY_MODE] = g_logeps_mode;
    h_EoS_Table[NUC_TAB_ENTR_MODE] = g_entr_mode;
    h_EoS_Table[NUC_TAB_PRES_MODE] = g_logprss_mode;
+   h_EoS_Table[NUC_TAB_YE       ] = g_yes_mode;
+
 
 
    if ( MPI_Rank == 0 )    Aux_Message( stdout, "%s ... done\n", __FUNCTION__ );
