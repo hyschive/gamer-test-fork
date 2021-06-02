@@ -102,10 +102,11 @@ GPU_DEVICE
 void nuc_eos_C_short( const real xrho, real *xtemp, const real xye,
                       real *xenr, real *xent, real *xprs,
                       real *xcs2, real *xmunu, const real energy_shift,
-                      const int nrho, const int ntemp, const int nye, const int nmode,
+                      const int nrho, const int ntemp, const int nye,
+                      const int nrho_mode, const int nmode, const int nye_mode,
                       const real *alltables, const real *alltables_mode,
-                      const real *logrho, const real *logtemp, const real *yes,
-                      const real *logeps_mode, const real *entr_mode, const real *logprss_mode,
+                      const real *logrho, const real *logtemp, const real *yes, const real *logrho_mode,
+                      const real *logeps_mode, const real *entr_mode, const real *logprss_mode, const real *yes_mode,
                       const int keymode, int *keyerr, const real rfeps )
 {
 
@@ -131,11 +132,11 @@ void nuc_eos_C_short( const real xrho, real *xtemp, const real xye,
       {
          const real leps = LOG10( MAX( (*xenr + energy_shift), 1.0 ) );
          
-         if ( leps > logeps_mode[nmode-1] )        {  *keyerr = 107; return;  }
-         if ( leps < logeps_mode[      0] )        {  *keyerr = 108; return;  }
+         //if ( leps > logeps_mode[nmode-1] )        {  *keyerr = 107; return;  }
+         //if ( leps < logeps_mode[      0] )        {  *keyerr = 108; return;  }
          
-         find_temp( lr, leps, xye, &lt, alltables_mode, nrho, nmode, nye, ntemp,
-                    logrho, logeps_mode, yes, logtemp, keymode, keyerr );
+         find_temp( lr, leps, xye, &lt, alltables_mode, nrho_mode, nmode, nye_mode, ntemp,
+                    logrho_mode, logeps_mode, yes_mode, logtemp, keymode, keyerr );
          
          if ( *keyerr != 0 ) 
          {
@@ -157,11 +158,11 @@ void nuc_eos_C_short( const real xrho, real *xtemp, const real xye,
       {
          const real entr = *xent;
          
-         if ( entr > entr_mode[nmode-1] )    {  *keyerr = 109; return;  }
-         if ( entr < entr_mode[      0] )    {  *keyerr = 110; return;  }
+         //if ( entr > entr_mode[nmode-1] )    {  *keyerr = 109; return;  }
+         //if ( entr < entr_mode[      0] )    {  *keyerr = 110; return;  }
           
-         find_temp( lr, entr, xye, &lt, alltables_mode, nrho, nmode, nye, ntemp,
-                    logrho, entr_mode, yes, logtemp, keymode, keyerr );
+         find_temp( lr, entr, xye, &lt, alltables_mode, nrho_mode, nmode, nye_mode, ntemp,
+                    logrho_mode, entr_mode, yes_mode, logtemp, keymode, keyerr );
           
          if ( *keyerr != 0 ) 
          {
@@ -176,11 +177,11 @@ void nuc_eos_C_short( const real xrho, real *xtemp, const real xye,
       {
          const real lprs = LOG10( *xprs );
          
-         if ( lprs > logprss_mode[nmode-1] ) {  *keyerr = 111; return;  }
-         if ( lprs < logprss_mode[      0] ) {  *keyerr = 112; return;  }
+         //if ( lprs > logprss_mode[nmode-1] ) {  *keyerr = 111; return;  }
+         //if ( lprs < logprss_mode[      0] ) {  *keyerr = 112; return;  }
          
-         find_temp( lr, lprs, xye, &lt, alltables_mode, nrho, nmode, nye, ntemp,
-                    logrho, logprss_mode, yes, logtemp, keymode, keyerr );
+         find_temp( lr, lprs, xye, &lt, alltables_mode, nrho_mode, nmode, nye_mode, ntemp,
+                    logrho_mode, logprss_mode, yes_mode, logtemp, keymode, keyerr );
          
          if ( *keyerr != 0 ) 
          {
@@ -196,8 +197,8 @@ void nuc_eos_C_short( const real xrho, real *xtemp, const real xye,
    real res[5]; // result array
 
 // linear interolation for other variables
-   nuc_eos_C_linterp_some(lr, lt, xye, res, alltables,
-                          nrho, ntemp, nye, 5, logrho, logtemp, yes);
+   nuc_eos_C_linterp_some( lr, lt, xye, res, alltables,
+                           nrho, ntemp, nye, 5, logrho, logtemp, yes);
    
 // cubic interpolation for other variables
    //nuc_eos_C_cubinterp_some( lr, lt, xye, res, alltables,

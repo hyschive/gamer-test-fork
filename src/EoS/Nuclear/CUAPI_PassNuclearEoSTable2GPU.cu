@@ -8,7 +8,10 @@
 extern int g_nrho;
 extern int g_ntemp;
 extern int g_nye;
+extern int g_nrho_mode;
 extern int g_nmode;
+extern int g_nye_mode;
+
 
 extern real *d_EoS_Table[EOS_NTABLE_MAX];
 
@@ -33,13 +36,15 @@ void CUAPI_PassNuclearEoSTable2GPU()
    long EoS_TableSize[NUC_TABLE_NPTR];
 
    EoS_TableSize[NUC_TAB_ALL      ] = sizeof(real)*g_nrho*g_ntemp*g_nye*NUC_TABLE_NVAR;
-   EoS_TableSize[NUC_TAB_ALL_MODE ] = sizeof(real)*g_nrho*g_nmode*g_nye*3;
+   EoS_TableSize[NUC_TAB_ALL_MODE ] = sizeof(real)*g_nrho_mode*g_nmode*g_nye_mode*3;
    EoS_TableSize[NUC_TAB_RHO      ] = sizeof(real)*g_nrho;
    EoS_TableSize[NUC_TAB_TEMP     ] = sizeof(real)*g_ntemp;
    EoS_TableSize[NUC_TAB_YE       ] = sizeof(real)*g_nye;
+   EoS_TableSize[NUC_TAB_RHO_MODE ] = sizeof(real)*g_nrho_mode;
    EoS_TableSize[NUC_TAB_ENGY_MODE] = sizeof(real)*g_nmode;
    EoS_TableSize[NUC_TAB_ENTR_MODE] = sizeof(real)*g_nmode;
    EoS_TableSize[NUC_TAB_PRES_MODE] = sizeof(real)*g_nmode;
+   EoS_TableSize[NUC_TAB_YE_MODE  ] = sizeof(real)*g_nye_mode;
 
    if ( MPI_Rank == 0 )
    {
