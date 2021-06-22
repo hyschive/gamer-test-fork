@@ -31,10 +31,17 @@
 #define NUC_TAB_ALL_MODE      1     // alltables_mode
 #define NUC_TAB_RHO           2     // logrho
 #define NUC_TAB_TEMP          3     // logtemp
+#define NUC_TAB_ENGY          3     // logenergy
 #define NUC_TAB_YE            4     // yes
 #define NUC_TAB_ENGY_MODE     5     // logenergy_mode
+#define NUC_TAB_TEMP_MODE     5     // logtemp_mode
 #define NUC_TAB_ENTR_MODE     6     // entr_mode
 #define NUC_TAB_PRES_MODE     7     // logprss_mode
+
+
+// EoS table default mode
+#define NUC_TABLE_MODE_TEMP   0     // temperature mode
+#define NUC_TABLE_MODE_ENGY   1     // energy mode
 
 
 // EoS modes
