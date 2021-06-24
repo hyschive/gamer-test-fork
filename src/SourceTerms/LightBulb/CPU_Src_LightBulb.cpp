@@ -20,10 +20,17 @@
 #include "CUAPI.h"
 #include "CUFLU_Shared_FluUtility.cu"
 #include "CUDA_ConstMemory.h"
+#include "findenergy.cu"
 #include "linterp_some.cu"
 
 
 #else
+
+void findenergy( const real x, const real y, const real z,
+                 real *found_leps, const real *alltables_mode,
+                 const int nx, const int ny, const int nz, const int neps,
+                 const real *xt, const real *yt, const real *zt,
+                 const real *logeps, const int keymode, int *keyerr );
 
 void nuc_eos_C_linterp_some( const real x, const real y, const real z,
                              real *output_vars, const real *alltables,
@@ -159,9 +166,16 @@ static void Src_LightBulb( real fluid[], const real B[],
    const double LB_TNU        = AuxArray_Flt[SRC_AUX_LB_TNU       ];
    const double LB_HEATFACTOR = AuxArray_Flt[SRC_AUX_LB_HEATFACTOR];
 
-   const int  NRho          = EoS->AuxArrayDevPtr_Int[NUC_AUX_NRHO ];
-   const int  NTemp         = EoS->AuxArrayDevPtr_Int[NUC_AUX_NTEMP];
-   const int  NYe           = EoS->AuxArrayDevPtr_Int[NUC_AUX_NYE  ];
+   const int  NRho          = EoS->AuxArrayDevPtr_Int[NUC_AUX_NRHO     ];
+   const int  NTorE         = EoS->AuxArrayDevPtr_Int[NUC_AUX_NTORE    ];
+   const int  NYe           = EoS->AuxArrayDevPtr_Int[NUC_AUX_NYE      ];
+#if ( NUC_TABLE_MODE == NUC_TABLE_MODE_ENGY )
+   const int  NRho_Mode     = EoS->AuxArrayDevPtr_Int[NUC_AUX_NRHO_MODE];
+   const int  NMode         = EoS->AuxArrayDevPtr_Int[NUC_AUX_NMODE    ];
+   const int  NYe_Mode      = EoS->AuxArrayDevPtr_Int[NUC_AUX_NYE_MODE ];
+   int        Err           = NULL_INT;
+#endif
+
 
    real UNIT_L = SrcTerms->Unit_L;
    real UNIT_T = SrcTerms->Unit_T;
@@ -190,23 +204,36 @@ static void Src_LightBulb( real fluid[], const real B[],
    real sEint_CGS = ( Eint_Code * sEint2CGS / Dens_Code ) - EnergyShift; // specific internal energy
 
 
-// Nuclear EoSs
+// Nuclear EoS
    real ExtraInOut[3] = { NULL_REAL };
-   EoS->DensEint2Pres_FuncPtr( Dens_Code, Eint_Code, &Ye, EoS->AuxArrayDevPtr_Flt, EoS->AuxArrayDevPtr_Int,
-                               EoS->Table, ExtraInOut ); // energy mode
-   real Temp_MeV = ExtraInOut[0];
+   real Temp_MeV;
+   Temp_MeV = EoS->DensEint2Temp_FuncPtr( Dens_Code, Eint_Code, &Ye, EoS->AuxArrayDevPtr_Flt, 
+                                          EoS->AuxArrayDevPtr_Int, EoS->Table, ExtraInOut ); // energy mode
 
 
    real logd = MIN(MAX(Dens_CGS, EoS->Table[NUC_TAB_RHO] [0]), EoS->Table[NUC_TAB_RHO ][NRho] );
-   real logt = MIN(MAX(Temp_MeV, EoS->Table[NUC_TAB_TEMP][0]), EoS->Table[NUC_TAB_TEMP][NTemp]);
+#if   ( NUC_TABLE_MODE == NUC_TABLE_MODE_TEMP )
+   real logt = MIN(MAX(Temp_MeV, EoS->Table[NUC_TAB_TORE][0]), EoS->Table[NUC_TAB_TORE][NTorE]);
+#elif ( NUC_TABLE_MODE == NUC_TABLE_MODE_ENGY )
+   real logt = MIN(MAX(Temp_MeV, EoS->Table[NUC_TAB_ENTE_MODE][0]), EoS->Table[NUC_TAB_ENTE_MODE][NMode]);
+#endif
    logd = LOG10(logd);
    logt = LOG10(logt);
 
 
    // find xp xn
    real res[16];
-   nuc_eos_C_linterp_some( logd, logt, Ye, res, EoS->Table[NUC_TAB_ALL], NRho, NTemp, NYe, 
-                           16, EoS->Table[NUC_TAB_RHO], EoS->Table[NUC_TAB_TEMP], EoS->Table[NUC_TAB_YE] );
+#if   ( NUC_TABLE_MODE == NUC_TABLE_MODE_TEMP )
+   nuc_eos_C_linterp_some( logd, logt, Ye, res, EoS->Table[NUC_TAB_ALL], NRho, NTorE, NYe, 
+                           16, EoS->Table[NUC_TAB_RHO], EoS->Table[NUC_TAB_TORE], EoS->Table[NUC_TAB_YE] );
+#elif ( NUC_TABLE_MODE == NUC_TABLE_MODE_ENGY )
+   real leps = NULL_REAL;
+   findenergy( logd, logt, Ye, &leps, EoS->Table[NUC_TAB_ALL_MODE], NRho_Mode, NMode, NYe_Mode, NTorE,
+               EoS->Table[NUC_TAB_RHO_MODE], EoS->Table[NUC_TAB_ENTE_MODE], EoS->Table[NUC_TAB_YE_MODE], 
+               EoS->Table[NUC_TAB_TORE], NUC_MODE_TEMP, &Err );
+   nuc_eos_C_linterp_some( logd, leps, Ye, res, EoS->Table[NUC_TAB_ALL], NRho, NTorE, NYe, 
+                           16, EoS->Table[NUC_TAB_RHO], EoS->Table[NUC_TAB_TORE], EoS->Table[NUC_TAB_YE] );
+#endif
 
    xXn = res[11];
    xXp = res[12];

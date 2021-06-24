@@ -24,20 +24,30 @@
 
 
 extern int    g_nrho;
-extern int    g_ntemp;
 extern int    g_nye;
+extern int    g_nrho_mode;
 extern int    g_nmode;
+extern int    g_nye_mode;
 extern double g_energy_shift;
 
 extern real *g_alltables;
 extern real *g_alltables_mode;
 extern real *g_logrho;
-extern real *g_logtemp;
 extern real *g_yes;
-extern real *g_logeps_mode;
+extern real *g_logrho_mode;
 extern real *g_entr_mode;
 extern real *g_logprss_mode;
+extern real *g_yes_mode;
 
+#if   ( NUC_TABLE_MODE == NUC_TABLE_MODE_TEMP )
+extern int    g_ntemp;
+extern real   *g_logtemp;
+extern real   *g_logeps_mode;
+#elif ( NUC_TABLE_MODE == NUC_TABLE_MODE_ENGY ) 
+extern int    g_neps;
+extern real   *g_logeps;
+extern real   *g_logtemp_mode;
+#endif
 
 
 // catch HDF5 errors
@@ -109,39 +119,49 @@ void nuc_eos_C_ReadTable( char *nuceos_table_name )
 
 
 // read size of tables
-   READ_EOS_HDF5( "pointsrho",   &g_nrho,  H5T_NATIVE_INT, H5S_ALL );
-   READ_EOS_HDF5( "pointstemp",  &g_ntemp, H5T_NATIVE_INT, H5S_ALL );
-   READ_EOS_HDF5( "pointsye",    &g_nye,   H5T_NATIVE_INT, H5S_ALL );
-   READ_EOS_HDF5( "points_mode", &g_nmode, H5T_NATIVE_INT, H5S_ALL );
+   READ_EOS_HDF5( "pointsrho",      &g_nrho,      H5T_NATIVE_INT, H5S_ALL );
+#if   ( NUC_TABLE_MODE == NUC_TABLE_MODE_TEMP )
+   READ_EOS_HDF5( "pointstemp",     &g_ntemp,     H5T_NATIVE_INT, H5S_ALL );
+#elif ( NUC_TABLE_MODE == NUC_TABLE_MODE_ENGY )
+   READ_EOS_HDF5( "pointsenergy",   &g_neps,      H5T_NATIVE_INT, H5S_ALL );
+#endif
+   READ_EOS_HDF5( "pointsye",       &g_nye,       H5T_NATIVE_INT, H5S_ALL );
+   READ_EOS_HDF5( "pointsrho_mode", &g_nrho_mode, H5T_NATIVE_INT, H5S_ALL );
+   READ_EOS_HDF5( "points_mode",    &g_nmode,     H5T_NATIVE_INT, H5S_ALL );
+   READ_EOS_HDF5( "pointsye_mode",  &g_nye_mode,  H5T_NATIVE_INT, H5S_ALL );
 
+
+#if   ( NUC_TABLE_MODE == NUC_TABLE_MODE_TEMP )
+   int n_def_mode = g_ntemp;
+#elif ( NUC_TABLE_MODE == NUC_TABLE_MODE_ENGY )
+   int n_def_mode = g_neps;
+#endif
+ 
 
 // allocate memory for tables
    real *alltables_temp      = NULL;
    real *alltables_mode_temp = NULL;
 
-   if (  ! ( alltables_temp      = (real*)malloc(g_nrho*g_ntemp*g_nye*NUC_TABLE_NVAR*sizeof(real)) )  )
+   if (  ! ( alltables_temp      = (real*)malloc(g_nrho*n_def_mode*g_nye*NUC_TABLE_NVAR*sizeof(real)) )  )
       Aux_Error( ERROR_INFO, "cannot allocate memory for EOS table !!\n" );
-
-   if (  ! ( alltables_mode_temp = (real*)malloc(g_nrho*g_nmode*g_nye*3             *sizeof(real)) )  )
-      Aux_Error( ERROR_INFO, "cannot allocate memory for EOS table !!\n" );
-
-   if (  ! ( g_alltables         = (real*)malloc(g_nrho*g_ntemp*g_nye*NUC_TABLE_NVAR*sizeof(real)) )  )
+   
+   if (  ! ( g_alltables         = (real*)malloc(g_nrho*n_def_mode*g_nye*NUC_TABLE_NVAR*sizeof(real)) )  )
       Aux_Error( ERROR_INFO, "cannot allocate memory for EOS table !!\n");
 
-   if (  ! ( g_alltables_mode    = (real*)malloc(g_nrho*g_nmode*g_nye*3             *sizeof(real)) )  )
+   if (  ! ( alltables_mode_temp = (real*)malloc(g_nrho_mode*g_nmode*g_nye_mode*3   *sizeof(real)) )  )
+      Aux_Error( ERROR_INFO, "cannot allocate memory for EOS table !!\n" );
+
+   if (  ! ( g_alltables_mode    = (real*)malloc(g_nrho_mode*g_nmode*g_nye_mode*3   *sizeof(real)) )  )
       Aux_Error( ERROR_INFO, "cannot allocate memory for EOS table !!\n");
 
    if (  ! ( g_logrho            = (real*)malloc(g_nrho                             *sizeof(real)) )  )
       Aux_Error( ERROR_INFO, "cannot allocate memory for EOS table !!\n" );
 
-   if (  ! ( g_logtemp           = (real*)malloc(g_ntemp                            *sizeof(real)) )  )
-      Aux_Error( ERROR_INFO, "cannot allocate memory for EOS table !!\n" );
-
    if (  ! ( g_yes               = (real*)malloc(g_nye                              *sizeof(real)) )  )
       Aux_Error( ERROR_INFO, "cannot allocate memory for EOS table !!\n");
-
-   if (  ! ( g_logeps_mode       = (real*)malloc(g_nmode                            *sizeof(real)) )  )
-      Aux_Error( ERROR_INFO, "cannot allocate memory for EOS table !!\n");
+ 
+   if (  ! ( g_logrho_mode       = (real*)malloc(g_nrho_mode                        *sizeof(real)) )  )
+      Aux_Error( ERROR_INFO, "cannot allocate memory for EOS table !!\n" );
 
    if (  ! ( g_entr_mode         = (real*)malloc(g_nmode                            *sizeof(real)) )  )
       Aux_Error( ERROR_INFO, "cannot allocate memory for EOS table !!\n");
@@ -149,20 +169,45 @@ void nuc_eos_C_ReadTable( char *nuceos_table_name )
    if (  ! ( g_logprss_mode      = (real*)malloc(g_nmode                            *sizeof(real)) )  )
       Aux_Error( ERROR_INFO, "cannot allocate memory for EOS table !!\n");
 
+   if (  ! ( g_yes_mode          = (real*)malloc(g_nye_mode                         *sizeof(real)) )  )
+      Aux_Error( ERROR_INFO, "cannot allocate memory for EOS table !!\n");
+
+#if   ( NUC_TABLE_MODE == NUC_TABLE_MODE_TEMP )
+
+   if (  ! ( g_logtemp           = (real*)malloc(n_def_mode                         *sizeof(real)) )  )
+      Aux_Error( ERROR_INFO, "cannot allocate memory for EOS table !!\n" );
+
+   if (  ! ( g_logeps_mode       = (real*)malloc(g_nmode                            *sizeof(real)) )  )
+      Aux_Error( ERROR_INFO, "cannot allocate memory for EOS table !!\n");
+
+#elif ( NUC_TABLE_MODE == NUC_TABLE_MODE_ENGY )
+
+   if (  ! ( g_logeps            = (real*)malloc(n_def_mode                         *sizeof(real)) )  )
+      Aux_Error( ERROR_INFO, "cannot allocate memory for EOS table !!\n" );
+
+   if (  ! ( g_logtemp_mode      = (real*)malloc(g_nmode                            *sizeof(real)) )  )
+      Aux_Error( ERROR_INFO, "cannot allocate memory for EOS table !!\n");
+
+#endif
 
 // prepare HDF5 to read hyperslabs into alltables_temp[]
-   hsize_t table_dims[2]      = { NUC_TABLE_NVAR, g_nrho*g_ntemp*g_nye };
-   hsize_t var3[2]            = { 1, g_nrho*g_ntemp*g_nye };
+
+   hsize_t table_dims[2]      = { NUC_TABLE_NVAR, g_nrho*n_def_mode*g_nye };
+   hsize_t var3[2]            = { 1, g_nrho*n_def_mode*g_nye };
    hid_t   mem3               = H5Screate_simple( 2, table_dims, NULL );
 
-   hsize_t table_dims_mode[2] = { 3, g_nrho*g_nmode*g_nye };
-   hsize_t var3_mode[2]       = { 1, g_nrho*g_nmode*g_nye };
+   hsize_t table_dims_mode[2] = { 3, g_nrho_mode*g_nmode*g_nye_mode };
+   hsize_t var3_mode[2]       = { 1, g_nrho_mode*g_nmode*g_nye_mode };
    hid_t   mem3_mode          = H5Screate_simple( 2, table_dims_mode, NULL );
 
 
 // read alltables_temp[]
    READ_EOSTABLE_HDF5( "logpress",  0 );
+#if   ( NUC_TABLE_MODE == NUC_TABLE_MODE_TEMP )
    READ_EOSTABLE_HDF5( "logenergy", 1 );
+#elif ( NUC_TABLE_MODE == NUC_TABLE_MODE_ENGY )
+   READ_EOSTABLE_HDF5( "logtemp",   1 );
+#endif
    READ_EOSTABLE_HDF5( "entropy",   2 );
    READ_EOSTABLE_HDF5( "munu",      3 );
    READ_EOSTABLE_HDF5( "cs2",       4 );
@@ -187,18 +232,31 @@ void nuc_eos_C_ReadTable( char *nuceos_table_name )
    READ_EOSTABLE_HDF5( "gamma",    15 );
 
 // energy for temp, entr modes
+#if   ( NUC_TABLE_MODE == NUC_TABLE_MODE_TEMP )
    READ_EOSTABLE_MODE_HDF5( "logtemp_ener", 0 );
    READ_EOSTABLE_MODE_HDF5( "logtemp_entr", 1 );
    READ_EOSTABLE_MODE_HDF5( "logtemp_prss", 2 );
+#elif ( NUC_TABLE_MODE == NUC_TABLE_MODE_ENGY )
+   READ_EOSTABLE_MODE_HDF5( "logenergy_temp", 0 );
+   READ_EOSTABLE_MODE_HDF5( "logenergy_entr", 1 );
+   READ_EOSTABLE_MODE_HDF5( "logenergy_prss", 2 );
+#endif
 
 // read additional tables and variables
    READ_EOS_HDF5( "logrho",         g_logrho,        H5T_GAMER_REAL,    H5S_ALL );
-   READ_EOS_HDF5( "logtemp",        g_logtemp,       H5T_GAMER_REAL,    H5S_ALL );
    READ_EOS_HDF5( "ye",             g_yes,           H5T_GAMER_REAL,    H5S_ALL );
-   READ_EOS_HDF5( "logenergy_mode", g_logeps_mode,   H5T_GAMER_REAL,    H5S_ALL );
+   READ_EOS_HDF5( "logrho_mode",    g_logrho_mode,   H5T_GAMER_REAL,    H5S_ALL );
    READ_EOS_HDF5( "entropy_mode",   g_entr_mode,     H5T_GAMER_REAL,    H5S_ALL );
    READ_EOS_HDF5( "logpress_mode",  g_logprss_mode,  H5T_GAMER_REAL,    H5S_ALL );
+   READ_EOS_HDF5( "ye_mode",        g_yes_mode,      H5T_GAMER_REAL,    H5S_ALL );
    READ_EOS_HDF5( "energy_shift",  &g_energy_shift,  H5T_NATIVE_DOUBLE, H5S_ALL );
+#if   ( NUC_TABLE_MODE == NUC_TABLE_MODE_TEMP )
+   READ_EOS_HDF5( "logtemp",        g_logtemp,       H5T_GAMER_REAL,    H5S_ALL );
+   READ_EOS_HDF5( "logenergy_mode", g_logeps_mode,   H5T_GAMER_REAL,    H5S_ALL );
+#elif ( NUC_TABLE_MODE == NUC_TABLE_MODE_ENGY )
+   READ_EOS_HDF5( "logenergy",      g_logeps,        H5T_GAMER_REAL,    H5S_ALL );
+   READ_EOS_HDF5( "logtemp_mode",   g_logtemp_mode,  H5T_GAMER_REAL,    H5S_ALL );
+#endif
 
    HDF5_ERROR(  H5Sclose( mem3      )  );
    HDF5_ERROR(  H5Sclose( mem3_mode )  );
@@ -208,22 +266,22 @@ void nuc_eos_C_ReadTable( char *nuceos_table_name )
 // change ordering of g_alltables[] so that the table kind is the fastest changing index
    for (int iv=0; iv<NUC_TABLE_NVAR; iv++)
    for (int k=0; k<g_nye;   k++)
-   for (int j=0; j<g_ntemp; j++)
+   for (int j=0; j<n_def_mode; j++)
    for (int i=0; i<g_nrho;  i++)
    {
-      const long indold = i + g_nrho*( j + g_ntemp*(k + g_nye*iv) );
-      const long indnew = iv + NUC_TABLE_NVAR*( i + g_nrho*(j + g_ntemp*k) );
+      const long indold = i + g_nrho*( j + n_def_mode*(k + g_nye*iv) );
+      const long indnew = iv + NUC_TABLE_NVAR*( i + g_nrho*(j + n_def_mode*k) );
 
       g_alltables[indnew] = alltables_temp[indold];
    }
 
    for (int iv=0; iv<3; iv++)
-   for (int k=0; k<g_nye;   k++)
-   for (int j=0; j<g_nmode; j++)
-   for (int i=0; i<g_nrho;  i++)
+   for (int k=0; k<g_nye_mode;   k++)
+   for (int j=0; j<g_nmode;      j++)
+   for (int i=0; i<g_nrho_mode;  i++)
    {
-      const long indold = i + g_nrho*( j + g_nmode*(k + g_nye*iv) );
-      const long indnew = iv + 3*( i + g_nrho*(j + g_nmode*k) );
+      const long indold = i + g_nrho_mode*( j + g_nmode*(k + g_nye_mode*iv) );
+      const long indnew = iv + 3*( i + g_nrho_mode*(j + g_nmode*k) );
 
       g_alltables_mode[indnew] = alltables_mode_temp[indold];
    }
@@ -238,11 +296,22 @@ void nuc_eos_C_ReadTable( char *nuceos_table_name )
    h_EoS_Table[NUC_TAB_ALL      ] = g_alltables;
    h_EoS_Table[NUC_TAB_ALL_MODE ] = g_alltables_mode;
    h_EoS_Table[NUC_TAB_RHO      ] = g_logrho;
-   h_EoS_Table[NUC_TAB_TEMP     ] = g_logtemp;
+#if   ( NUC_TABLE_MODE == NUC_TABLE_MODE_TEMP )
+   h_EoS_Table[NUC_TAB_TORE     ] = g_logtemp;
+#elif ( NUC_TABLE_MODE == NUC_TABLE_MODE_ENGY )
+   h_EoS_Table[NUC_TAB_TORE     ] = g_logeps;
+#endif
    h_EoS_Table[NUC_TAB_YE       ] = g_yes;
-   h_EoS_Table[NUC_TAB_ENGY_MODE] = g_logeps_mode;
+   h_EoS_Table[NUC_TAB_RHO_MODE ] = g_logrho_mode;
+#if   ( NUC_TABLE_MODE == NUC_TABLE_MODE_TEMP )
+   h_EoS_Table[NUC_TAB_ENTE_MODE] = g_logeps_mode;
+#elif ( NUC_TABLE_MODE == NUC_TABLE_MODE_ENGY )
+   h_EoS_Table[NUC_TAB_ENTE_MODE] = g_logtemp_mode;
+#endif
    h_EoS_Table[NUC_TAB_ENTR_MODE] = g_entr_mode;
    h_EoS_Table[NUC_TAB_PRES_MODE] = g_logprss_mode;
+   h_EoS_Table[NUC_TAB_YE_MODE  ] = g_yes_mode;
+
 
 
    if ( MPI_Rank == 0 )    Aux_Message( stdout, "%s ... done\n", __FUNCTION__ );

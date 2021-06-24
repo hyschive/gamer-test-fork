@@ -177,6 +177,7 @@ void find_temp( const real x, const real y, const real z,
 // linear interpolation when cubic interpolations failed
    if ( vox != vox )
    {
+      if ( keymode == NUC_MODE_PRES ) { *keyerr = 683; return; }
       find_temp_bdry( x, y, z, found_lt, alltables_mode,
                       nx, ny, nz, ntemp, xt, yt, zt, logtemp, keymode, keyerr );
       return;

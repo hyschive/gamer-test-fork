@@ -19,7 +19,11 @@ real linterp2D( const real* xs, const real* ys, const real* fs, const real x, co
 
 #ifdef __CUDACC__
 
-// #include "cubinterp_some.cu"
+GPU_DEVICE static
+void nuc_eos_C_linterp_some( const real x, const real y, const real z,
+                             real *output_vars, const real *alltables,
+                             const int nx, const int ny, const int nz, const int nvars,
+                             const real *xt, const real *yt, const real *zt );
 
 GPU_DEVICE static
 void find_temp2( const real lr, const real lt0, const real ye, const real varin, real *ltout,
@@ -411,8 +415,8 @@ void bisection( const real lr, const real lt0, const real ye, const real var0,
 
 // iv is the index of the table variable we do the bisection on
    int bcount = 0;
-   int maxbcount = 100;
-   int itmax = 100;
+   int maxbcount = 30;
+   int itmax = 50;
 
 // temporary local vars
    real lt, lt1, lt2;

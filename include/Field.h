@@ -24,7 +24,7 @@ SET_GLOBAL( FieldIdx_t Idx_MomY,          Idx_Undefined );
 SET_GLOBAL( FieldIdx_t Idx_MomZ,          Idx_Undefined );
 SET_GLOBAL( FieldIdx_t Idx_Engy,          Idx_Undefined );
 #if ( EOS == EOS_NUCLEAR )
-SET_GLOBAL( FieldIdx_t Idx_Enpy,          Idx_Undefined );
+SET_GLOBAL( FieldIdx_t Idx_Entr,          Idx_Undefined );
 SET_GLOBAL( FieldIdx_t Idx_Ye,            Idx_Undefined );
 #endif
 #ifdef COSMIC_RAY

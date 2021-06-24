@@ -27,10 +27,12 @@ static bool Flag_User_PostBounce( const int i, const int j, const int k, const i
 extern void nuc_eos_C_short( const real xrho, real *xtemp, const real xye,
                              real *xenr, real *xent, real *xprs,
                              real *xcs2, real *xmunu, const real energy_shift,
-                             const int nrho, const int ntemp, const int nye, const int nmode,
+                             const int nrho, const int ntore, const int nye, 
+                             const int nrho_mode, const int nmode, const int nye_mode,
                              const real *alltables, const real *alltables_mode,
-                             const real *logrho, const real *logtemp, const real *yes,
-                             const real *logeps_mode, const real *entr_mode, const real *logprss_mode,
+                             const real *logrho, const real *logtoreps, const real *yes, 
+                             const real *logrho_mode, const real *logepsort_mode, 
+                             const real *entr_mode, const real *logprss_mode, const real *yes_mode,
                              const int keymode, int *keyerr, const real rfeps );
 
 
@@ -229,10 +231,12 @@ void SetGridIC( real fluid[], const double x, const double y, const double z, co
       const real Pres2CGS    = EoS_AuxArray_Flt[NUC_AUX_PRES2CGS ];
       const real sEint2Code  = EoS_AuxArray_Flt[NUC_AUX_VSQR2CODE];
 
-      const int  NRho        = EoS_AuxArray_Int[NUC_AUX_NRHO ];
-      const int  NTemp       = EoS_AuxArray_Int[NUC_AUX_NTEMP];
-      const int  NYe         = EoS_AuxArray_Int[NUC_AUX_NYE  ];
-      const int  NMode       = EoS_AuxArray_Int[NUC_AUX_NMODE];
+      const int  NRho        = EoS_AuxArray_Int[NUC_AUX_NRHO     ];
+      const int  NTorE       = EoS_AuxArray_Int[NUC_AUX_NTORE    ];
+      const int  NYe         = EoS_AuxArray_Int[NUC_AUX_NYE      ];
+      const int  NRho_Mode   = EoS_AuxArray_Int[NUC_AUX_NRHO_MODE];
+      const int  NMode       = EoS_AuxArray_Int[NUC_AUX_NMODE    ];
+      const int  NYe_Mode    = EoS_AuxArray_Int[NUC_AUX_NYE_MODE ];
 
       int  Mode      = NUC_MODE_TEMP;
       real Dens_CGS  = Dens * Dens2CGS;
@@ -240,19 +244,19 @@ void SetGridIC( real fluid[], const double x, const double y, const double z, co
       real sEint_CGS = NULL_REAL;
       real Useless   = NULL_REAL;
       int  Err       = NULL_INT;
-#ifdef FLOAT8
-   const real Tolerance = 1e-10;
-#else
-   const real Tolerance = 1e-6;
-#endif
+#     ifdef FLOAT8
+      const real Tolerance = 1.0e-10;
+#     else
+      const real Tolerance = 1.0e-6;
+#     endif
 
-
-      nuc_eos_C_short( Dens_CGS, &Temp_MeV, Ye, &sEint_CGS, &Useless, &Useless, &Useless, &Useless,
-                       EnergyShift, NRho, NTemp, NYe, NMode,
+      nuc_eos_C_short( Dens_CGS, &Temp_MeV, Ye, &sEint_CGS,&Useless, &Useless, &Useless, &Useless,
+                       EnergyShift, NRho, NTorE, NYe, NRho_Mode, NMode, NYe_Mode,
                        h_EoS_Table[NUC_TAB_ALL],       h_EoS_Table[NUC_TAB_ALL_MODE],
-                       h_EoS_Table[NUC_TAB_RHO],       h_EoS_Table[NUC_TAB_TEMP],
-                       h_EoS_Table[NUC_TAB_YE],        h_EoS_Table[NUC_TAB_ENGY_MODE],
-                       h_EoS_Table[NUC_TAB_ENTR_MODE], h_EoS_Table[NUC_TAB_PRES_MODE],
+                       h_EoS_Table[NUC_TAB_RHO],       h_EoS_Table[NUC_TAB_TORE],
+                       h_EoS_Table[NUC_TAB_YE],        h_EoS_Table[NUC_TAB_RHO_MODE], 
+                       h_EoS_Table[NUC_TAB_ENTE_MODE], h_EoS_Table[NUC_TAB_ENTR_MODE], 
+                       h_EoS_Table[NUC_TAB_PRES_MODE], h_EoS_Table[NUC_TAB_YE_MODE],
                        Mode, &Err, Tolerance );
 
       if ( Err )  sEint_CGS = NAN;

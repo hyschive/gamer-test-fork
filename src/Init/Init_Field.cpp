@@ -111,6 +111,8 @@ void Init_Field()
 //    corresponding symbolic constants (e.g., YE/ENPY/EINT/CRAY) defined in Macro.h
 //    --> as we still rely on these constants (e.g., DENS, ENPY) in the fluid solvers
 #  if ( EOS == EOS_NUCLEAR )
+   Idx_Entr    = AddField( "Entropy",  NORMALIZE_NO, INTERP_FRAC_NO );
+   if ( Idx_Entr != ENTR )    Aux_Error( ERROR_INFO, "inconsistent Idx_Enpy (%d != %d) !!\n", Idx_Entr, ENTR );
    Idx_Ye      = AddField( "Ye",       NORMALIZE_NO, INTERP_FRAC_YES );
    if ( Idx_Ye   != YE )      Aux_Error( ERROR_INFO, "inconsistent Idx_Ye   (%d != %d) !!\n", Idx_Ye,   YE   );
 #  endif

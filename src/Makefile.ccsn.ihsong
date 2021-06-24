@@ -36,7 +36,7 @@ COMPILE_VERBOSE := 0
 SIMU_OPTION += -DMODEL=HYDRO
 
 # enable gravity
-SIMU_OPTION += -DGRAVITY
+#SIMU_OPTION += -DGRAVITY
 
 # enable particles
 # --> must enable GRAVITY
@@ -86,15 +86,18 @@ SIMU_OPTION += -DNCOMP_PASSIVE_USER=0
 # --> must be set when MODEL=HYDRO; must also enable BAROTROPIC_EOS for EOS_ISOTHERMAL
 SIMU_OPTION += -DEOS=EOS_NUCLEAR
 
+# Nuclear EoS table default mode: NUC_TABLE_MODE_TEMP/NUC_TABLE_MODE_ENGY
+SIMU_OPTION += -DNUC_TABLE_MODE=NUC_TABLE_MODE_ENGY
+
 # whether or not the EOS set above is barotropic
 # --> mandatory for EOS_ISOTHERMAL; optional for EOS_TABULAR/EOS_USER
 #SIMU_OPTION += -DBAROTROPIC_EOS
 
 # enable Deleptonization
-SIMU_OPTION += -DDELEPTONIZATION
+#SIMU_OPTION += -DDELEPTONIZATION
 
 # neutrino updating scheme: LIGHTBULB/IDSA/M1
-SIMU_OPTION += -DNEUTRINO_SCHEME=LIGHTBULB
+#SIMU_OPTION += -DNEUTRINO_SCHEME=LIGHTBULB
 
 
 # (b-2) ELBDM options
@@ -139,7 +142,7 @@ SIMU_OPTION += -DSTORE_POT_GHOST
 
 # effective GR potential
 # --> must also set "OPT__EXT_POT=3" in Input__Parameter
-SIMU_OPTION += -DGREP
+#SIMU_OPTION += -DGREP
 endif # GRAVITY
 
 
@@ -177,7 +180,7 @@ SIMU_OPTION += -DGPU
 SIMU_OPTION += -DGPU_ARCH=TURING
 
 # debug mode
-SIMU_OPTION += -DGAMER_DEBUG
+#SIMU_OPTION += -DGAMER_DEBUG
 
 # bitwise reproducibility
 #SIMU_OPTION += -DBITWISE_REPRODUCIBILITY
@@ -488,7 +491,7 @@ CPU_FILE    += CPU_FluidSolver_RTVD.cpp  CPU_FluidSolver_MHM.cpp  CPU_FluidSolve
 
 CPU_FILE    += CPU_EoS_Gamma.cpp  CPU_EoS_User_Template.cpp  CPU_EoS_Isothermal.cpp  CPU_EoS_Nuclear.cpp \
                EoS_Init.cpp  EoS_End.cpp  EoS_End_Nuclear.cpp  NuclearEoS.cpp  cubinterp_some.cpp  linterp_some.cpp \
-               findtemp.cpp findtemp2.cpp  readtable.cpp
+               findtemp.cpp findtemp2.cpp findenergy.cpp readtable.cpp
 
 CPU_FILE    += Hydro_Init_ByFunction_AssignData.cpp  Hydro_Aux_Check_Negative.cpp \
                Hydro_BoundaryCondition_Reflecting.cpp  Hydro_BoundaryCondition_Outflow.cpp

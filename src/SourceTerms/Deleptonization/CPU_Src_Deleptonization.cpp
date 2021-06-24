@@ -208,8 +208,8 @@ static void Src_Deleptonization( real fluid[], const real B[],
    {
    // Nuclear EoSs
       real ExtraInOut[3];
-      EoS->DensEint2Pres_FuncPtr( Dens_Code, Eint_Code, &Ye, EoS->AuxArrayDevPtr_Flt, EoS->AuxArrayDevPtr_Int,
-                                  EoS->Table, ExtraInOut ); // energy mode
+      Pres_Code = EoS->DensEint2Pres_FuncPtr( Dens_Code, Eint_Code, &Ye, EoS->AuxArrayDevPtr_Flt, 
+                                              EoS->AuxArrayDevPtr_Int, EoS->Table, ExtraInOut ); // energy mode
       real Temp_MeV = ExtraInOut[0];
       Entr          = ExtraInOut[1];
       real mu_nu    = ExtraInOut[2];

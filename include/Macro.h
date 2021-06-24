@@ -78,6 +78,11 @@
 #define EOS_USER        5
 
 
+// nuclear eos table default mode
+#define NUC_TABLE_MODE_TEMP 0
+#define NUC_TABLE_MODE_ENGY 1
+
+
 // neutrino updating schemes
 #define LIGHTBULB    1
 #define IDSA         2

@@ -6,7 +6,9 @@
 
 #ifdef __CUDACC__
 
+#include "cubinterp_some.cu"
 #include "linterp_some.cu"
+#include "findenergy.cu"
 #include "findtemp.cu"
 #include "findtemp2.cu"
 
@@ -45,9 +47,10 @@ void findenergy( const real x, const real y, const real z,
 // 
 // Note        :  It will strictly return values in cgs or MeV
 //                Four modes are supported
-//                The defalut mode is temperature (0) mode
+//                The defalut mode is temperature (1) mode
 //                In case three other modes are available for finding temperature
 //                energy      (0) mode
+//                temperature (1) mode
 //                entropy     (2) mode
 //                pressure    (3) mode
 //
@@ -65,7 +68,7 @@ void findenergy( const real x, const real y, const real z,
 //                xmunu           : output chemcial potential
 //                energy_shift    : energy_shift
 //                nrho            : size of density array in the Nuclear EoS table
-//                ntemp           : size of temperature array in the Nuclear EoS table
+//                ntoreps         : size of (temperature/energy) array in the Nuclear EoS table (temp/energy-based table)
 //                nye             : size of Y_e array in the Nuclear EoS table
 //                nmode           : size of log(eps)   (0)
 //                                          entropy    (2)
@@ -76,9 +79,9 @@ void findenergy( const real x, const real y, const real z,
 //                                                              entropy mode
 //                                                              pressure mode
 //                logrho          : log(rho) array in the table
-//                logtemp         : log(T)   array for temperature mode
+//                logtoreps       : log(T) or log(eps) array for (T/eps) mode (temp/energy-based table)
 //                yes             : Y_e      array in the table
-//                logenergy_mode  : log(eps) array for energy mode
+//                logepsort_mode  : log(eps) or log(T) array for (eps/T) mode (temp/energy-based table)
 //                entropy_mode    : entropy  array for entropy mode
 //                logpress_mode   : log(P)   array for pressure mode
 //                keymode         : which mode we will use
@@ -87,7 +90,7 @@ void findenergy( const real x, const real y, const real z,
 //                                  2 : entropy mode     (coming in with entropy)
 //                                  3 : pressure mode    (coming in with P)
 //                keyerr          : output error
-//                                  667 : fail in finding temp (eps, e, P modes)
+//                                  667 : fail in finding T/e (temp/energy-based table)
 //                                  101 : Y_e too high
 //                                  102 : Y_e too low
 //                                  103 : temp too high (if keymode = 1) 
@@ -106,10 +109,11 @@ GPU_DEVICE
 void nuc_eos_C_short( const real xrho, real *xtemp, const real xye,
                       real *xenr, real *xent, real *xprs,
                       real *xcs2, real *xmunu, const real energy_shift,
-                      const int nrho, const int ntemp, const int nye, const int nmode,
+                      const int nrho, const int ntoreps, const int nye,
+                      const int nrho_mode, const int nmode, const int nye_mode,
                       const real *alltables, const real *alltables_mode,
-                      const real *logrho, const real *logtemp, const real *yes,
-                      const real *logeps_mode, const real *entr_mode, const real *logprss_mode,
+                      const real *logrho, const real *logtoreps, const real *yes, const real *logrho_mode,
+                      const real *logepsort_mode, const real *entr_mode, const real *logprss_mode, const real *yes_mode,
                       const int keymode, int *keyerr, const real rfeps )
 {
 
@@ -125,20 +129,24 @@ void nuc_eos_C_short( const real xrho, real *xtemp, const real xye,
    if ( xye < yes  [     0] )  {  *keyerr = 102;  return;  }
    
 
-// find temperature
-#if ( EoS->Table_Mode == TABLE_MODE_TEMP )
+// find temperature (temp-based table)
+#if ( NUC_TABLE_MODE == NUC_TABLE_MODE_TEMP )
+
+   const int ntemp = ntoreps;
+   const real *logtemp = logtoreps;
    real lt  = LOG10( *xtemp );
-   real lt0 = LOG10( 63.0 );
+   real lt0 = LOG10( 63.0 ); //lt;
 
    switch ( keymode )
    {
       case NUC_MODE_ENGY :
       {
          const real leps = LOG10( MAX( (*xenr + energy_shift), 1.0 ) );
+         const real *logeps_mode = logepsort_mode;
 
-         find_temp( lr, leps, xye, &lt, alltables_mode, nrho, nmode, nye, ntemp,
-                   logrho, logeps_mode, yes, logtemp, keymode, keyerr );
-         
+         find_temp( lr, leps, xye, &lt, alltables_mode, nrho_mode, nmode, nye_mode, ntemp,
+                    logrho_mode, logeps_mode, yes_mode, logtemp, keymode, keyerr );
+
          if ( *keyerr != 0 ) 
          {
             find_temp2( lr, lt0, xye, leps, &lt, nrho, ntemp, nye, alltables,
@@ -159,8 +167,8 @@ void nuc_eos_C_short( const real xrho, real *xtemp, const real xye,
       {
          const real entr = *xent;
 
-         find_temp( lr, entr, xye, &lt, alltables_mode, nrho, nmode, nye, ntemp,
-                    logrho, entr_mode, yes, logtemp, keymode, keyerr );
+         find_temp( lr, entr, xye, &lt, alltables_mode, nrho_mode, nmode, nye_mode, ntemp,
+                    logrho_mode, entr_mode, yes_mode, logtemp, keymode, keyerr );
 
          if ( *keyerr != 0 ) 
          {
@@ -175,8 +183,8 @@ void nuc_eos_C_short( const real xrho, real *xtemp, const real xye,
       {
          const real lprs = LOG10( *xprs );
 
-         find_temp( lr, lprs, xye, &lt, alltables_mode, nrho, nmode, nye, ntemp,
-                    logrho, logprss_mode, yes, logtemp, keymode, keyerr );
+         find_temp( lr, lprs, xye, &lt, alltables_mode, nrho_mode, nmode, nye_mode, ntemp,
+                    logrho_mode, logprss_mode, yes_mode, logtemp, keymode, keyerr );
 
          if ( *keyerr != 0 ) 
          {
@@ -193,12 +201,12 @@ void nuc_eos_C_short( const real xrho, real *xtemp, const real xye,
 
 // linear interolation for other variables
    nuc_eos_C_linterp_some( lr, lt, xye, res, alltables,
-                           nrho, ntemp, nye, 5, logrho, logtemp, yes );
+                           nrho, ntemp, nye, 5, logrho, logtemp, yes);
 
 // cubic interpolation for other variables
-   //nuc_eos_C_cubiterp_some( lr, lt, xye, res, alltables,
+   //nuc_eos_C_cubinterp_some( lr, lt, xye, res, alltables,
    //                          nrho, ntemp, nye, 5, logrho, logtemp, yes );
-
+   
 
 // assign results
    if ( keymode != NUC_MODE_TEMP ) *xtemp = POW( (real)10.0, lt );
@@ -209,10 +217,13 @@ void nuc_eos_C_short( const real xrho, real *xtemp, const real xye,
    *xmunu = res[3];
    *xcs2  = res[4];
 
-// find energy
-#elif ( EoS->Table_Mode == TABLE_MODE_ENGY )
-   real leps = NULL_REAL;
 
+// find energy (energy-based table)
+#elif ( NUC_TABLE_MODE == NUC_TABLE_MODE_ENGY )
+
+   const int neps     = ntoreps;
+   const real *logeps = logtoreps;
+   real leps          = NULL_REAL;
    switch ( keymode )
    {
       case NUC_MODE_ENGY :
@@ -227,12 +238,13 @@ void nuc_eos_C_short( const real xrho, real *xtemp, const real xye,
       case NUC_MODE_TEMP :
       {
          const real lt = LOG10( *xtemp );
+         const real *logtemp_mode = logepsort_mode;
 
          if ( lt > logtemp_mode[nmode-1] )   {  *keyerr = 107;  return;  }
          if ( lt < logtemp_mode[      0] )   {  *keyerr = 108;  return;  }
 
          findenergy( lr, lt, xye, &leps, alltables_mode, nrho, nmode, nye, neps,
-                     logrho, logtemp_mode, yes, logeps, keymode, keyerr );
+                     logrho_mode, logtemp_mode, yes_mode, logeps, keymode, keyerr );
 
          if ( *keyerr != 0 )  return;
       }
@@ -246,7 +258,7 @@ void nuc_eos_C_short( const real xrho, real *xtemp, const real xye,
          if ( entr < entr_mode[      0] )    {  *keyerr = 110;  return;  }
 
          findenergy( lr, entr, xye, &leps, alltables_mode, nrho, nmode, nye, neps,
-                     logrho, entr_mode, yes, logeps, keymode, keyerr );
+                     logrho_mode, entr_mode, yes_mode, logeps, keymode, keyerr );
 
          if ( *keyerr != 0 )  return;
       }
@@ -260,7 +272,7 @@ void nuc_eos_C_short( const real xrho, real *xtemp, const real xye,
          if ( lprs < logprss_mode[      0] ) {  *keyerr = 112;  return;  }
 
          findenergy( lr, lprs, xye, &leps, alltables_mode, nrho, nmode, nye, neps,
-                     logrho, logprss_mode, yes, logeps, keymode, keyerr );
+                     logrho_mode, logprss_mode, yes_mode, logeps, keymode, keyerr );
 
          if ( *keyerr != 0 )  return;
       }
@@ -287,7 +299,7 @@ void nuc_eos_C_short( const real xrho, real *xtemp, const real xye,
    *xmunu = res[3];
    *xcs2  = res[4];
 
-#endif // #if Table_Mode == TABLE_MODE_ENGY
+#endif // #elif Table_Mode == TABLE_MODE_ENGY
 
 
    return;
