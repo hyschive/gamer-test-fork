@@ -25,10 +25,9 @@ void findenergy( const real x, const real y, const real z,
 //-------------------------------------------------------------------------------------
 // Function    :  findenergy
 // Description :  Find energy from different modes
-//                --> Temperature mode (1)
-//                    Entropy     mode (2)
-//                    Pressure    mode (3)
-//
+//                -->              Temperature mode (1)
+//                                 Entropy     mode (2)
+//                                 Pressure    mode (3)
 // Note        :  1. Use 3D Catmull-Rom cubic interpolation formula
 //                   to search the corresponding energy given (rho, (T, e, P), Y_e)
 //                2. Invoked by nuc_eos_C_short()
@@ -97,9 +96,9 @@ void findenergy( const real x, const real y, const real z,
 
 
 // determine location in table
-   ix = (int)( (x - xt[0] + (real)1.0e-10)*dxi );
-   iy = (int)( (y - yt[0] + (real)1.0e-10)*dyi );
-   iz = (int)( (z - zt[0] + (real)1.0e-10)*dzi );
+   ix = (int)floor( (x - xt[0])*dxi );
+   iy = (int)floor( (y - yt[0])*dyi );
+   iz = (int)floor( (z - zt[0])*dzi );
 
 
 // linear interpolation at boundaries
@@ -266,9 +265,9 @@ void findenergy_bdry( const real x, const real y, const real z,
 
 
 // determine location in table
-   ix = 1 + (int)( (x - xt[0] - (real)1.0e-10)*dxi );
-   iy = 1 + (int)( (y - yt[0] - (real)1.0e-10)*dyi );
-   iz = 1 + (int)( (z - zt[0] - (real)1.0e-10)*dzi );
+   ix = 1 + (int)floor( ( x - xt[0] )*dxi );
+   iy = 1 + (int)floor( ( y - yt[0] )*dyi );
+   iz = 1 + (int)floor( ( z - zt[0] )*dzi );
 
    ix = MAX( 1, MIN( ix, nx-1 ) );
    iy = MAX( 1, MIN( iy, ny-1 ) );
@@ -291,9 +290,9 @@ void findenergy_bdry( const real x, const real y, const real z,
    idx[7] = 3*(  (ix-1) + nx*( (iy-1) + ny*(iz-1) )  );
 
    int iv;
-   if      ( keymode == NUC_MODE_TEMP )   iv = 0; // energy table for the temperature mode
-   else if ( keymode == NUC_MODE_ENTR )   iv = 1; // energy table for the entropy mode
-   else if ( keymode == NUC_MODE_PRES )   iv = 2; // energy table for the pressure mode
+   if      ( keymode == NUC_MODE_TEMP ) iv = 0; // energy table for the temperature mode
+   else if ( keymode == NUC_MODE_ENTR ) iv = 1; // energy table for the entropy mode
+   else if ( keymode == NUC_MODE_PRES ) iv = 2; // energy table for the pressure mode
 
 
 // set up aux vars for interpolation assuming array ordering (iv, ix, iy, iz)
@@ -327,15 +326,11 @@ void findenergy_bdry( const real x, const real y, const real z,
                + a[6]*dely*delz
                + a[7]*delx*dely*delz;
 
-   if (  *found_leps != *found_leps  ||
-         ! ( *found_leps>logeps[0] && *found_leps<logeps[neps-1] )  )
+   if ( *found_leps != *found_leps  ||
+        ! ( *found_leps>logeps[0] && *found_leps<logeps[neps-1] )  )
       *keyerr = 667;
 
 
-  return;
+   return;
 
 } // FUNCTION : findenergy_bdry
-
-
-
-#endif // #if ( MODEL == HYDRO  &&  EOS == EOS_NUCLEAR )

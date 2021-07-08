@@ -26,7 +26,7 @@ void nuc_eos_C_linterp_some( const real x, const real y, const real z,
                              const real *xt, const real *yt, const real *zt );
 
 GPU_DEVICE static
-void find_temp2( const real lr, const real lt0, const real ye, const real varin, real *ltout,
+void findtemp2( const real lr, const real lt0, const real ye, const real varin, real *ltout,
                  const int nrho, const int ntemp, const int nye, const real *alltables, 
                  const real *logrho, const real *logtemp, const real *yes,
                  const int keymode, int *keyerrt, const real prec );
@@ -44,7 +44,7 @@ void nuc_eos_C_linterp_some( const real x, const real y, const real z,
 
 
 //-------------------------------------------------------------------------------------
-// Function    :  find_temp2
+// Function    :  findtemp2
 // Description :  find temperature from specific internal energy
 //                                      specific entropy
 //                                      pressure
@@ -68,7 +68,7 @@ void nuc_eos_C_linterp_some( const real x, const real y, const real z,
 // Return      :  ltout
 //-------------------------------------------------------------------------------------
 GPU_DEVICE
-void find_temp2( const real lr, const real lt0, const real ye, const real varin, real *ltout,
+void findtemp2( const real lr, const real lt0, const real ye, const real varin, real *ltout,
                  const int nrho, const int ntemp, const int nye, const real *alltables, 
                  const real *logrho, const real *logtemp, const real *yes,
                  const int keymode, int *keyerrt, const real prec ) {
@@ -120,9 +120,9 @@ void find_temp2( const real lr, const real lt0, const real ye, const real varin,
 
 // step 2: check if the two bounding values of the temperature
 //         give values that enclose the new values.
-   int itemp = MIN(MAX(1 + (int)(( lt - logtemp[0] - (real)1.0e-10)*dtempi), 1), ntemp-1);
-   int irho  = MIN(MAX(1 + (int)(( lr - logrho[0]  - (real)1.0e-10)*drhoi ), 1), nrho-1 );
-   int iye   = MIN(MAX(1 + (int)(( ye - yes[0]     - (real)1.0e-10)*dyei  ), 1), nye-1  );
+   int itemp = MIN(MAX(1 + (int)floor(( lt - logtemp[0] )*dtempi), 1), ntemp-1);
+   int irho  = MIN(MAX(1 + (int)floor(( lr - logrho[0]  )*drhoi ), 1), nrho-1 );
+   int iye   = MIN(MAX(1 + (int)floor(( ye - yes[0]     )*dyei  ), 1), nye-1  );
 
    int iv;
    if ( keymode == NUC_MODE_ENGY ) iv = 1; // energy mode
@@ -315,9 +315,9 @@ void nuc_eos_C_linterp_for_temp( const real x, const real y, const real z,
 
 // determine location in table
 
-   ix = 1 + (int)( ( x - xt[0] - (real)1.0e-10 )*dxi );
-   iy = 1 + (int)( ( y - yt[0] - (real)1.0e-10 )*dyi );
-   iz = 1 + (int)( ( z - zt[0] - (real)1.0e-10 )*dzi );
+   ix = 1 + (int)floor( ( x - xt[0] )*dxi );
+   iy = 1 + (int)floor( ( y - yt[0] )*dyi );
+   iz = 1 + (int)floor( ( z - zt[0] )*dzi );
 
    ix = MAX( 1, MIN( ix, nx-1 ) );
    iy = MAX( 1, MIN( iy, ny-1 ) );

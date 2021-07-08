@@ -5,14 +5,14 @@
 
 
 GPU_DEVICE static
-void find_temp_bdry( const real x, const real y, const real z, 
+void findtemp_bdry( const real x, const real y, const real z, 
                      real *found_lt, const real *alltables_mode,
                      const int nx, const int ny, const int nz, const int ntemp, 
                      const real *xt, const real *yt, const real *zt, 
                      const real *logtemp, const int keymode, int *keyerr );
 #ifdef __CUDACC__
 GPU_DEVICE static
-void find_temp( const real x, const real y, const real z, 
+void findtemp( const real x, const real y, const real z, 
                 real *found_lt, const real *alltables_mode,
                 const int nx, const int ny, const int nz, const int ntemp, 
                 const real *xt, const real *yt, const real *zt, 
@@ -23,10 +23,11 @@ void find_temp( const real x, const real y, const real z,
 
 
 //-------------------------------------------------------------------------------------
-// Function    :  find_temp
-// Description :  Finding energy from specific internal energy (0)
-//                                    entropy                  (2)
-//                                    pressure                 (3) mode
+// Function    :  findtemp
+// Description :  Finding energy from different modes
+//                -->                 energy mode   (0)
+//                                    entropy mode  (2)
+//                                    pressure mode (3)
 //                Using 3D Catmull-Rom cubic interpolation formula
 //                to search the corresponding temperature given (rho, (eps, e, P), Y_e)
 //
@@ -47,18 +48,18 @@ void find_temp( const real x, const real y, const real z,
 //                yt             : vector of y-coordinates of table
 //                zt             : vector of z-coordinates of table
 //                logtemp        : log(T) array in the table
-//                keymode        : which mode we will use
-//                                 0: energy mode      (coming in with eps)
-//                                 2: entropy mode     (coming in with entropy)
-//                                 3: pressure mode    (coming in with P)
+//                keymode        : Which mode we will use
+//                                 --> 1: Energy mode   (coming in with internal energy)
+//                                     2: Entropy mode  (coming in with entropy)
+//                                     3: Pressure mode (coming in with P)
 //                keyerr         : output error
 //-------------------------------------------------------------------------------------
 GPU_DEVICE
-void find_temp( const real x, const real y, const real z, 
-                real *found_lt, const real *alltables_mode,
-                const int nx, const int ny, const int nz, const int ntemp, 
-                const real *xt, const real *yt, const real *zt, 
-                const real *logtemp, const int keymode, int *keyerr )
+void findtemp( const real x, const real y, const real z, 
+               real *found_lt, const real *alltables_mode,
+               const int nx, const int ny, const int nz, const int ntemp, 
+               const real *xt, const real *yt, const real *zt, 
+               const real *logtemp, const int keymode, int *keyerr )
 {
 
    const real *pv = NULL;
@@ -74,7 +75,7 @@ void find_temp( const real x, const real y, const real z,
    nxy = nx*ny;
 
 // determine spacing parameters of equidistant (!!!) table
-#if 1
+#  if 1
    dx = ( xt[nx-1] - xt[0] ) / (real)(nx-1);
    dy = ( yt[ny-1] - yt[0] ) / (real)(ny-1);
    dz = ( zt[nz-1] - zt[0] ) / (real)(nz-1);
@@ -82,30 +83,31 @@ void find_temp( const real x, const real y, const real z,
    dxi = (real)1.0 / dx;
    dyi = (real)1.0 / dy;
    dzi = (real)1.0 / dz;
-#endif
+#  endif
 
-#if 0
+#  if 0
    dx = drho;
    dy = dtemp;
    dz = dye;
+
    dxi = drhoi;
    dyi = dtempi;
    dzi = dyei;
-#endif
+#  endif
 
 
    // determine location in table
-   ix = (int)( (x - xt[0] + (real)1.0e-10)*dxi );
-   iy = (int)( (y - yt[0] + (real)1.0e-10)*dyi );
-   iz = (int)( (z - zt[0] + (real)1.0e-10)*dzi );
+   ix = (int)floor( (x - xt[0] )*dxi );
+   iy = (int)floor( (y - yt[0] )*dyi );
+   iz = (int)floor( (z - zt[0] )*dzi );
    
     
    // linear interpolation at boundaries
    if ( ix == 0 || iy == 0 || iz == 0 ||
         ix == nx-2 || iy == ny-2 || iz == nz-2 )
    {
-      find_temp_bdry( x, y, z, found_lt, alltables_mode,
-                      nx, ny, nz, ntemp, xt, yt, zt, logtemp, keymode, keyerr );
+      findtemp_bdry( x, y, z, found_lt, alltables_mode, nx, ny, nz, ntemp,
+                     xt, yt, zt, logtemp, keymode, keyerr );
       return;
    }
 
@@ -178,7 +180,7 @@ void find_temp( const real x, const real y, const real z,
    if ( vox != vox )
    {
       if ( keymode == NUC_MODE_PRES ) { *keyerr = 683; return; }
-      find_temp_bdry( x, y, z, found_lt, alltables_mode,
+      findtemp_bdry( x, y, z, found_lt, alltables_mode,
                       nx, ny, nz, ntemp, xt, yt, zt, logtemp, keymode, keyerr );
       return;
    }
@@ -186,12 +188,12 @@ void find_temp( const real x, const real y, const real z,
 
   return;
 
-} // FUNCTION : find_temp
+} // FUNCTION : findtemp
 
 
 
 //-------------------------------------------------------------------------------------
-// Function    :  find_temp_bdry
+// Function    :  findtemp_bdry
 // Description :  Finding energy from specific internal energy (0)
 //                                    entropy                  (2)
 //                                    pressure                 (3) mode
@@ -219,7 +221,7 @@ void find_temp( const real x, const real y, const real z,
 //                keyerr         : output error
 //-------------------------------------------------------------------------------------
 GPU_DEVICE
-void find_temp_bdry( const real x, const real y, const real z, 
+void findtemp_bdry( const real x, const real y, const real z, 
                      real *found_lt, const real *alltables_mode,
                      const int nx, const int ny, const int nz, const int ntemp, 
                      const real *xt, const real *yt, const real *zt, 
@@ -234,9 +236,9 @@ void find_temp_bdry( const real x, const real y, const real z,
 
 // determine spacing parameters of equidistant (!!!) table
 #  if 1
-   dx  = ( xt[nx-1] - xt[0] ) / (real)(nx-1);
-   dy  = ( yt[ny-1] - yt[0] ) / (real)(ny-1);
-   dz  = ( zt[nz-1] - zt[0] ) / (real)(nz-1);
+   dx = ( xt[nx-1] - xt[0] ) / (real)(nx-1);
+   dy = ( yt[ny-1] - yt[0] ) / (real)(ny-1);
+   dz = ( zt[nz-1] - zt[0] ) / (real)(nz-1);
    
    dxi = (real)1.0 / dx;
    dyi = (real)1.0 / dy;
@@ -260,20 +262,20 @@ void find_temp_bdry( const real x, const real y, const real z,
 
 
 // determine location in table
-   ix = 1 + (int)( (x - xt[0] - (real)1.0e-10)*dxi );
-   iy = 1 + (int)( (y - yt[0] - (real)1.0e-10)*dyi );
-   iz = 1 + (int)( (z - zt[0] - (real)1.0e-10)*dzi );
-   
+   ix = 1 + (int)floor( (x - xt[0])*dxi );
+   iy = 1 + (int)floor( (y - yt[0])*dyi );
+   iz = 1 + (int)floor( (z - zt[0])*dzi );
+
    ix = MAX( 1, MIN( ix, nx-1 ) );
    iy = MAX( 1, MIN( iy, ny-1 ) );
    iz = MAX( 1, MIN( iz, nz-1 ) );
-   
+
 
 // set up aux vars for interpolation   
    delx = xt[ix] - x;
    dely = yt[iy] - y;
    delz = zt[iz] - z;
-   
+
    int idx[8];
    idx[0] = 3*(  (ix  ) + nx*( (iy  ) + ny*(iz  ) )  );
    idx[1] = 3*(  (ix-1) + nx*( (iy  ) + ny*(iz  ) )  );
@@ -283,13 +285,13 @@ void find_temp_bdry( const real x, const real y, const real z,
    idx[5] = 3*(  (ix-1) + nx*( (iy  ) + ny*(iz-1) )  );
    idx[6] = 3*(  (ix  ) + nx*( (iy-1) + ny*(iz-1) )  );
    idx[7] = 3*(  (ix-1) + nx*( (iy-1) + ny*(iz-1) )  );
-   
+
    int iv;
    if      ( keymode == NUC_MODE_ENGY )  iv = 0; // energy table for the temperature mode
    else if ( keymode == NUC_MODE_ENTR )  iv = 1; // energy table for the entropy mode
    else if ( keymode == NUC_MODE_PRES )  iv = 2; // energy table for the pressure mode
-   
-   
+
+
 // set up aux vars for interpolation assuming array ordering (iv, ix, iy, iz)
    fh[0] = alltables_mode[ iv + idx[0] ];
    fh[1] = alltables_mode[ iv + idx[1] ];
@@ -320,15 +322,15 @@ void find_temp_bdry( const real x, const real y, const real z,
              + a[5]*delx*delz
              + a[6]*dely*delz
              + a[7]*delx*dely*delz;
-   
+
    if ( *found_lt != *found_lt || 
         ! ( *found_lt>logtemp[0] && *found_lt<logtemp[ntemp-1] )  )
       *keyerr = 665;
 
 
-  return;
+   return;
 
-} // FUNCTION : find_temp_bdry
+} // FUNCTION : findtemp_bdry
 
 
 
